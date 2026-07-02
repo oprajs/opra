@@ -142,8 +142,7 @@ export class HttpRequestObservable<
 
   param(
     params:
-      | URLSearchParamsInit
-      | Record<string, string | number | boolean | Date>,
+      URLSearchParamsInit | Record<string, string | number | boolean | Date>,
   ): this;
   param(name: string, value: any): this;
   param(arg0: string | URLSearchParamsInit, value?: any): this {

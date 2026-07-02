@@ -76,9 +76,7 @@ export namespace SqbEntityService {
         args: SqbEntityService.CommandInfo,
         _this: SqbEntityService<any>,
       ) =>
-        | SQBAdapter.FilterInput
-        | Promise<SQBAdapter.FilterInput>
-        | undefined);
+        SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined);
 
   /* Options for the `create` operation. */
   export interface CreateOptions extends Repository.CreateOptions {}
@@ -264,8 +262,7 @@ export class SqbEntityService<
    * Useful for multi-tenant isolation or other cross-cutting constraints.
    */
   commonFilter?:
-    | SqbEntityService.CommonFilter
-    | SqbEntityService.CommonFilter[];
+    SqbEntityService.CommonFilter | SqbEntityService.CommonFilter[];
 
   /**
    * Called whenever a command throws. Useful for logging or transforming errors.

@@ -2,9 +2,10 @@ import { ApiDocument, HttpOperation } from '@opra/common';
 import {
   ExpressAdapter,
   HttpContext,
-  HttpIncoming,
-  HttpOutgoing,
-  NodeIncomingMessage,
+  HttpRequest,
+  HttpResponse,
+  IncomingMessageHost,
+  ServerResponseHost,
 } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import { expect } from 'expect';
@@ -16,8 +17,8 @@ describe('http:HttpContext', () => {
   let app: Express;
   let adapter: ExpressAdapter;
 
-  function createContext(operation: HttpOperation, request: HttpIncoming) {
-    const response = HttpOutgoing.from({ req: request });
+  function createContext(operation: HttpOperation, request: HttpRequest) {
+    const response = HttpResponse.create(ServerResponseHost.create(request));
     return new HttpContext({
       __adapter: adapter,
       __oprDef: operation,
@@ -42,8 +43,8 @@ describe('http:HttpContext', () => {
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customer@1 HTTP/1.1',
             'Content-Type: application/json',
@@ -58,7 +59,7 @@ describe('http:HttpContext', () => {
       ),
     );
     context.request.params.customerId = 1;
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     const body = await context.getBody();
     expect(body).toEqual({ active: true });
   });
@@ -68,8 +69,8 @@ describe('http:HttpContext', () => {
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customer@1 HTTP/1.1',
             'Content-Type: text/yaml',
@@ -84,7 +85,7 @@ describe('http:HttpContext', () => {
       ),
     );
     context.request.params.customerId = 1;
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     const body = await context.getBody();
     expect(body).toEqual({ active: true });
   });
@@ -94,8 +95,8 @@ describe('http:HttpContext', () => {
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customer HTTP/1.1',
             'Content-Type: application/json',
@@ -109,9 +110,9 @@ describe('http:HttpContext', () => {
         ),
       ),
     );
-    await await expect(() =>
-      adapter.handler.parseRequest(context),
-    ).rejects.toThrow('Value must be a number');
+    await expect(() => adapter.parseRequest(context)).rejects.toThrow(
+      'Value must be a number',
+    );
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
@@ -137,8 +138,8 @@ describe('http:HttpContext', () => {
     ].join('\r\n');
     const context = createContext(
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customer HTTP/1.1',
             'Content-Type: multipart/form-data; boundary=AaB03x',
@@ -150,7 +151,7 @@ describe('http:HttpContext', () => {
         ),
       ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     const reader = await context.getMultipartReader();
     let parts = await reader.getAll();
     expect(parts).toBeDefined();

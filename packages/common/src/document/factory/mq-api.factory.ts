@@ -14,10 +14,7 @@ import { DataTypeFactory } from './data-type.factory.js';
 export namespace MQApiFactory {
   export interface InitArguments extends MQApi.InitArguments {
     controllers:
-      | Type[]
-      | any[]
-      | ((parent: any) => any)
-      | OpraSchema.MQApi['controllers'];
+      Type[] | any[] | ((parent: any) => any) | OpraSchema.MQApi['controllers'];
   }
 }
 

@@ -16,14 +16,17 @@ import { toString } from 'putil-varhelpers';
 import vary from 'vary';
 import type {
   CookieOptions,
-  HttpOutgoing,
-} from '../interfaces/http-outgoing.interface.js';
+  HttpResponse,
+} from '../interfaces/http-response.interface.js';
 
 const charsetRegExp = /;\s*charset\s*=/;
 
-export interface HttpOutgoingHost extends HttpOutgoing {}
+export interface HttpResponseHost extends HttpResponse {}
 
-export class HttpOutgoingHost {
+export class HttpResponseHost implements HttpResponse {
+  statusCode: number = 200;
+  statusMessage: string = HttpStatusCode[200];
+
   attachment(filename?: string): this {
     if (filename) {
       this.contentType(path.extname(filename));

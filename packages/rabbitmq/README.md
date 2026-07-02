@@ -42,9 +42,7 @@ import { RabbitmqAdapter } from '@opra/rabbitmq';
 
 const adapter = new RabbitmqAdapter(apiDocument, {
   url: 'amqp://localhost',
-  queues: [
-    { name: 'orders', prefetch: 10 },
-  ],
+  queues: [{ name: 'orders', prefetch: 10 }],
 });
 
 await adapter.initialize();

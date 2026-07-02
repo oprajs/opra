@@ -49,32 +49,22 @@ export interface HttpMediaType {
   multipartFields?: HttpMultipartField[];
 
   /**
-   * Determines maximum number of multipart fields
+   * Determines maximum number of multipart item
    */
-  maxFields?: number;
+  maxParts?: number;
+
+  /**
+   * Determines maximum size of each multipart item
+   */
+  maxPartSize?: number;
 
   /**
    * Determines maximum size of each multipart field
    */
-  maxFieldsSize?: number;
+  maxFieldSize?: number;
 
   /**
-   * Determines maximum number of multipart files
+   * Determines maximum size of all multipart items
    */
-  maxFiles?: number;
-
-  /**
-   * Determines maximum size of each multipart file
-   */
-  maxFileSize?: number;
-
-  /**
-   * Determines maximum size of all multipart files
-   */
-  maxTotalFileSize?: number;
-
-  /**
-   * Determines minimum size of each multipart file
-   */
-  minFileSize?: number;
+  maxTotalSize?: number;
 }

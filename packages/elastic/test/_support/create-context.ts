@@ -2,17 +2,18 @@ import { HttpOperation } from '@opra/common';
 import {
   HttpAdapter,
   HttpContext,
-  HttpIncoming,
-  HttpOutgoing,
+  HttpRequest,
+  HttpResponse,
+  ServerResponseHost,
 } from '@opra/http';
 
 export function createContext(
   adapter: HttpAdapter,
   operation?: HttpOperation,
-  request?: HttpIncoming,
+  request?: HttpRequest,
 ) {
-  request = request || HttpIncoming.from({ method: 'GET', url: '/' });
-  const response = HttpOutgoing.from({ req: request });
+  request = request || HttpRequest.create({ method: 'GET', url: '/' });
+  const response = HttpResponse.create(ServerResponseHost.create(request));
   return new HttpContext({
     __adapter: adapter,
     __oprDef: operation,

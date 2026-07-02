@@ -18,10 +18,7 @@ import { SocketioContext } from './socketio-context.js';
 
 // const noOp = () => undefined;
 type TServerInstance =
-  | http.Server
-  | https.Server
-  | http2.Http2SecureServer
-  | http2.Http2Server;
+  http.Server | https.Server | http2.Http2SecureServer | http2.Http2Server;
 
 /**
  * SocketioAdapter is a platform adapter for Socket.io.
@@ -39,8 +36,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   readonly transform: OpraSchema.Transport = 'ws';
   readonly platform = SocketioAdapter.PlatformName;
   readonly interceptors: (
-    | SocketioAdapter.InterceptorFunction
-    | SocketioAdapter.IWSInterceptor
+    SocketioAdapter.InterceptorFunction | SocketioAdapter.IWSInterceptor
   )[];
   readonly server: socketio.Server;
 

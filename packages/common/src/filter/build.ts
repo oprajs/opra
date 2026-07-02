@@ -16,13 +16,7 @@ import {
 } from './ast/index.js';
 
 type _EntryValue =
-  | Expression
-  | string
-  | number
-  | bigint
-  | boolean
-  | null
-  | Date;
+  Expression | string | number | bigint | boolean | null | Date;
 export type EntryValue = _EntryValue | _EntryValue[];
 
 export function $or(...items: Expression[]): LogicalExpression {

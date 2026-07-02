@@ -6,13 +6,13 @@ import typeIs from '@browsery/type-is';
 import accepts from 'accepts';
 import fresh from 'fresh';
 import parseRange from 'range-parser';
-import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
+import type { HttpRequest } from '../interfaces/http-request.interface.js';
 import { BodyReader } from '../utils/body-reader.js';
 
-export interface HttpIncomingHost extends HttpIncoming {}
+export interface HttpRequestHost extends HttpRequest {}
 const ENCODING_PATTERN = /encoding=([^;]+)/;
 
-export class HttpIncomingHost implements HttpIncoming {
+export class HttpRequestHost {
   body?: any;
 
   get protocol(): string {
@@ -124,7 +124,8 @@ export class HttpIncomingHost implements HttpIncoming {
   async readBody(
     options: BodyReader.Options,
   ): Promise<string | Buffer | undefined> {
-    if (!this.complete) this.body = await BodyReader.read(this, options);
+    if (this.body === undefined)
+      this.body = await BodyReader.read(this, options);
     return this.body;
   }
 }

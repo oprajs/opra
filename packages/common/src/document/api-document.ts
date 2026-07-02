@@ -148,11 +148,7 @@ export class ApiDocument extends DocumentElement {
 
   protected _findDataType(
     nameOrCtor:
-      | string
-      | Type
-      | Function
-      | EnumType.EnumArray
-      | EnumType.EnumObject,
+      string | Type | Function | EnumType.EnumArray | EnumType.EnumObject,
     scope?: string,
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {

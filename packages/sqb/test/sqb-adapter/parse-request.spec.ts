@@ -1,5 +1,5 @@
 import { ApiDocument } from '@opra/common';
-import { HttpIncoming, NodeIncomingMessage } from '@opra/http';
+import { HttpRequest, IncomingMessageHost } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
 import { sql } from '@sqb/builder';
 import { CustomerApplication } from 'example-express-sqb';
@@ -24,8 +24,8 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     const context = createContext(
       app.adapter,
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'POST /Customers HTTP/1.1',
             'Content-Type: application/json',
@@ -36,6 +36,7 @@ describe('sqb:SQBAdapter.parseRequest', () => {
             '0',
             '',
           ].join('\r\n'),
+          { waitForBody: true },
         ),
       ),
     );
@@ -123,8 +124,8 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     const context = createContext(
       app.adapter,
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customers HTTP/1.1',
             'Content-Type: application/json',
@@ -160,8 +161,8 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     const context = createContext(
       app.adapter,
       operation,
-      HttpIncoming.from(
-        await NodeIncomingMessage.fromAsync(
+      HttpRequest.create(
+        await IncomingMessageHost.from(
           [
             'PATCH /Customers HTTP/1.1',
             'Content-Type: application/json',

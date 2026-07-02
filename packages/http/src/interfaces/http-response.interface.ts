@@ -1,21 +1,21 @@
 import { mergePrototype } from '@opra/common';
+import http from 'http';
 import { type StrictOmit } from 'ts-gems';
-import { HttpOutgoingHost } from '../impl/http-outgoing.host.js';
-import { isHttpOutgoing, isNodeOutgoingMessage } from '../type-guards.js';
-import type { HttpIncoming } from './http-incoming.interface.js';
-import { NodeOutgoingMessage } from './node-outgoing-message.interface.js';
+import { HttpResponseHost } from '../impl/http-response.host.js';
+import type { ServerResponseHost } from '../impl/server-response-host.js';
+import { isHttpOutgoingMessage, isHttpResponse } from '../type-guards.js';
+import type { HttpRequest } from './http-request.interface.js';
 
 /**
- * HttpOutgoing represents an outgoing HTTP response.
- * It extends NodeOutgoingMessage with additional functionality for handling HTTP responses.
+ * HttpOutgoing represents an outgoing HTTP response. (Express.Response)
+ * It extends OutgoingMessage with additional functionality for handling HTTP responses.
  */
-export interface HttpOutgoing extends StrictOmit<
-  NodeOutgoingMessage,
-  'req' | 'appendHeader' | 'setHeader'
+export interface HttpResponse extends StrictOmit<
+  http.ServerResponse<HttpRequest>,
+  'appendHeader' | 'setHeader'
 > {
-  req: HttpIncoming;
-
-  readonly finished?: boolean;
+  statusCode: number;
+  statusMessage: string;
 
   appendHeader(name: string, value: string | readonly string[]): this;
 
@@ -167,23 +167,21 @@ export interface CookieOptions {
   sameSite?: boolean | 'lax' | 'strict' | 'none';
 }
 
-/**
- * Utility functions for HttpOutgoing.
- */
-export namespace HttpOutgoing {
+export namespace HttpResponse {
   /**
    * Creates an HttpOutgoing instance from various sources.
    *
    * @param instance - The source instance.
    * @returns The HttpOutgoing instance.
    */
-  export function from(
-    instance: HttpOutgoing | NodeOutgoingMessage.Initiator,
-  ): HttpOutgoing {
-    if (isHttpOutgoing(instance)) return instance;
-    if (!isNodeOutgoingMessage(instance))
-      instance = NodeOutgoingMessage.from(instance);
-    mergePrototype(instance, HttpOutgoingHost.prototype);
-    return instance as HttpOutgoing;
+  export function create(
+    instance: http.OutgoingMessage | ServerResponseHost.Initiator,
+  ): HttpResponse {
+    if (isHttpResponse(instance)) return instance;
+    if (!isHttpOutgoingMessage(instance)) {
+      throw new TypeError(`${instance} is not an http OutgoingMessage`);
+    }
+    mergePrototype(instance, HttpResponseHost.prototype);
+    return instance as HttpResponse;
   }
 }

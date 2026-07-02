@@ -50,11 +50,15 @@ export class OrdersController extends SqbCollectionService<Order> {
   }
 
   @HttpOperation.Entity.FindMany({ type: Order })
-  findMany() { return super.findMany(); }
+  findMany() {
+    return super.findMany();
+  }
 
   @HttpOperation.Entity.Create({ type: Order })
   async create(dto: CreateOrderDto) {
-    return this.withTransaction(conn => super.create(dto, { connection: conn }));
+    return this.withTransaction(conn =>
+      super.create(dto, { connection: conn }),
+    );
   }
 }
 ```

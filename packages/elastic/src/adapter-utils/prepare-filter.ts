@@ -65,12 +65,10 @@ function prepareFilterAst(
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
-    if (
-      !(
-        ast.left instanceof OpraFilter.QualifiedIdentifier ||
-        ast.left instanceof OpraFilter.StringLiteral
-      )
-    ) {
+    if (!(
+      ast.left instanceof OpraFilter.QualifiedIdentifier ||
+      ast.left instanceof OpraFilter.StringLiteral
+    )) {
       throw new Error(
         'Left side of ComparisonExpression must be a QualifiedIdentifier',
       );

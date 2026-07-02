@@ -259,14 +259,12 @@ function MixinTypeFactory(clasRefs: Type[], options?: DataType.Options): Type {
 
   for (const c of clasRefs) {
     const itemMeta = Reflect.getMetadata(DATATYPE_METADATA, c);
-    if (
-      !(
-        itemMeta &&
-        (itemMeta.kind === OpraSchema.ComplexType.Kind ||
-          itemMeta.kind === OpraSchema.MixinType.Kind ||
-          itemMeta.kind === OpraSchema.MappedType.Kind)
-      )
-    ) {
+    if (!(
+      itemMeta &&
+      (itemMeta.kind === OpraSchema.ComplexType.Kind ||
+        itemMeta.kind === OpraSchema.MixinType.Kind ||
+        itemMeta.kind === OpraSchema.MappedType.Kind)
+    )) {
       throw new TypeError(
         `Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.MixinType.Kind} or ${OpraSchema.MappedType.Kind}`,
       );

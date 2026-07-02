@@ -10,11 +10,7 @@ export interface ComplexType extends StrictOmit<DataTypeBase, 'kind'> {
   ctor?: Type;
   fields?: Record<Field.Name, Field | DataType.Name>;
   additionalFields?:
-    | boolean
-    | string
-    | DataType
-    | ['error']
-    | ['error', string];
+    boolean | string | DataType | ['error'] | ['error', string];
   keyField?: Field.Name;
   discriminatorField?: string;
   discriminatorValue?: string;

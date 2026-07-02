@@ -10,8 +10,5 @@
       "@opra/client": ["../client/src/index.js"]
     }
   },
-  "references": [
-    { "path": "../common" },
-    { "path": "../client" }
-  ]
+  "references": [{ "path": "../common" }, { "path": "../client" }]
 }

@@ -1,5 +1,5 @@
 import { Injectable, type NestMiddleware } from '@nestjs/common';
-import { HttpContext, HttpIncoming, HttpOutgoing } from '@opra/http';
+import { HttpRequest, HttpResponse } from '@opra/http';
 import type { NextFunction, Request, Response } from 'express';
 import { OpraHttpNestjsAdapter } from './opra-http-nestjs-adapter.js';
 
@@ -21,19 +21,18 @@ export class OpraMiddleware implements NestMiddleware {
    * @param next - Function that calls the next middleware.
    */
   use(req: Request, res: Response, next: NextFunction) {
-    const request = HttpIncoming.from(req);
-    const response = HttpOutgoing.from(res);
-    /* Create the HttpContext */
-    const context = new HttpContext({
-      __adapter: this.opraAdapter,
-      platform: req.route ? 'express' : 'fastify',
-      request,
-      response,
-    });
-    (req as any).opraContext = context;
+    const request = HttpRequest.create(req);
+    const response = HttpResponse.create(res);
     this.opraAdapter
-      .emitAsync('createContext', context)
-      .then(() => next())
+      .createContext(request, response)
+      .then(async context => {
+        // @ts-ignore
+        context.platform = req.route ? 'express' : 'fastify';
+        (req as any).opraContext = context;
+        await this.opraAdapter
+          .emitAsync('createContext', context)
+          .then(() => next());
+      })
       .catch(next);
   }
 }

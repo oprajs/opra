@@ -74,8 +74,7 @@ export class OpraRabbitmqCoreModule
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraRabbitmqModule.ModuleOptions
-      | OpraRabbitmqModule.AsyncModuleOptions,
+      OpraRabbitmqModule.ModuleOptions | OpraRabbitmqModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions.id || RabbitmqAdapter;
     const adapterProvider = {

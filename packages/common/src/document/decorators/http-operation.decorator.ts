@@ -17,33 +17,25 @@ export interface HttpOperationDecorator {
   Cookie(
     name: string | RegExp,
     optionsOrType?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type,
   ): this;
 
   Header(
     name: string | RegExp,
     optionsOrType?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | TypeThunkAsync,
+      StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
   ): this;
 
   QueryParam(
     name: string | RegExp,
     optionsOrType?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | TypeThunkAsync,
+      StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
   ): this;
 
   PathParam(
     name: string | RegExp,
     optionsOrType?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | TypeThunkAsync,
+      StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
   ): this;
 
   RequestContent(type: string | Type): this;

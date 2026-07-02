@@ -7,11 +7,14 @@ import {
 
 export function convertToHeaders<T>(
   src: string[],
-  dst: T,
-  joinDuplicateHeaders?: boolean,
+  dst: T = {} as T,
+  options?: {
+    lowerCaseKeys?: boolean;
+    joinDuplicateHeaders?: boolean;
+  },
 ): T {
   for (let n: number = 0; n < src.length; n += 2) {
-    addHeaderLine(src[n], src[n + 1], dst, joinDuplicateHeaders);
+    addHeaderLine(src[n], src[n + 1], dst, options);
   }
   return dst;
 }
@@ -28,10 +31,15 @@ function addHeaderLine(
   field: string,
   value: any,
   dest: any,
-  joinDuplicateHeaders?: boolean,
+  options?: {
+    lowerCaseKeys?: boolean;
+    joinDuplicateHeaders?: boolean;
+  },
 ) {
   if (value == null) return;
-  field = field.toLowerCase();
+  if (options?.lowerCaseKeys) {
+    field = field.toLowerCase();
+  }
   const [, flag] = matchKnownFields(field);
 
   // comma(0) or semicolon(2) delimited field
@@ -49,7 +57,7 @@ function addHeaderLine(
     } else {
       dest['set-cookie'] = [value];
     }
-  } else if (joinDuplicateHeaders) {
+  } else if (options?.joinDuplicateHeaders) {
     if (dest[field] === undefined) {
       dest[field] = value;
     } else {

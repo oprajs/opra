@@ -15,7 +15,7 @@ import iconv from 'iconv-lite';
 import { Writable } from 'stream';
 import * as zlib from 'zlib';
 import { LocalFile } from '../impl/local-file.js';
-import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
+import type { HttpRequest } from '../interfaces/http-request.interface.js';
 
 /**
  *
@@ -48,7 +48,7 @@ export class BodyReader extends EventEmitter {
   protected onEnd: Callback;
 
   constructor(
-    readonly req: HttpIncoming,
+    readonly req: HttpRequest,
     options?: BodyReader.Options,
   ) {
     super();
@@ -268,14 +268,14 @@ export class BodyReader extends EventEmitter {
    * @returns A promise that resolves to the body content.
    */
   static async read(
-    req: HttpIncoming,
+    req: HttpRequest,
     options?: BodyReader.Options,
   ): Promise<string | Buffer | undefined> {
     const bodyReady = new BodyReader(req, options);
     return bodyReady.read();
   }
 
-  protected static encoderPipeline(req: HttpIncoming): nodeStream.Readable {
+  protected static encoderPipeline(req: HttpRequest): nodeStream.Readable {
     const contentEncoding: string =
       req.headers['content-encoding'] || 'identity';
     const contentEncodings = (

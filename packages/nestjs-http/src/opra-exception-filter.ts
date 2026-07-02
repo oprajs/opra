@@ -27,7 +27,7 @@ export class OpraExceptionFilter extends BaseExceptionFilter {
     if (ctx) {
       const adapter = this.moduleRef.get(OpraHttpNestjsAdapter);
       ctx.errors.push(exception);
-      return adapter.handler.sendResponse(ctx);
+      return adapter.sendResponse(ctx);
     }
     super.catch(exception, host);
   }

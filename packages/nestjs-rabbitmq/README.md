@@ -63,7 +63,7 @@ OpraRabbitmqModule.forRootAsync({
     controllers: [OrdersController],
   }),
   inject: [ConfigService],
-})
+});
 ```
 
 ## Node Compatibility

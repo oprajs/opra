@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import type { StrictOmit } from 'ts-gems';
 
 export interface ResponsiveMapOptions {
@@ -6,9 +7,7 @@ export interface ResponsiveMapOptions {
 }
 
 export type ResponsiveMapInit<V> =
-  | ResponsiveMap<V>
-  | Map<string, V>
-  | Record<any, V>;
+  ResponsiveMap<V> | Map<string, V> | Record<any, V>;
 
 function isMap(v): v is Map<any, any> {
   return v && typeof v.forEach === 'function';
@@ -23,7 +22,7 @@ const kSize = Symbol.for('kSize');
 /**
  * A Map implementation that supports case-insensitivity and ordered keys
  */
-export class ResponsiveMap<V> {
+export class ResponsiveMap<V> extends EventEmitter {
   declare private [kSize]: number;
   declare private [kEntries]: Record<string, V>;
   declare private [kKeyMap]: Record<string, string>;
@@ -34,6 +33,7 @@ export class ResponsiveMap<V> {
     init?: ResponsiveMapInit<V> | null,
     options?: ResponsiveMapOptions,
   ) {
+    super();
     Object.defineProperty(this, kSize, {
       value: 0,
       enumerable: false,
@@ -79,6 +79,8 @@ export class ResponsiveMap<V> {
     Object.keys(this[kEntries]).forEach(k => delete this[kEntries][k]);
     Object.keys(this[kKeyMap]).forEach(k => delete this[kKeyMap][k]);
     this[kSize] = 0;
+    this.emit('change');
+    this.emit('clear');
   }
 
   forEach(
@@ -113,6 +115,8 @@ export class ResponsiveMap<V> {
     this[kEntries][storeKey] = value;
     if (!exists) this[kSize]++;
     this[kKeyMap][storeKey] = key;
+    this.emit('change');
+    this.emit('set', key, value);
     return this;
   }
 
@@ -142,7 +146,10 @@ export class ResponsiveMap<V> {
     );
     delete this[kEntries][storeKey];
     delete this[kKeyMap][storeKey];
-    if (!exists) this[kSize]--;
+    if (exists) {
+      this[kSize]--;
+      this.emit('change');
+    }
     return exists;
   }
 
@@ -158,6 +165,7 @@ export class ResponsiveMap<V> {
       this[kKeyMap][k] = oldKeymap[k];
     }
     this[kSize] = keys.length;
+    this.emit('change');
     return this;
   }
 
@@ -167,6 +175,44 @@ export class ResponsiveMap<V> {
       out[orgKey] = this[kEntries][storeKey];
     }
     return out;
+  }
+
+  toProxy(): Record<string, V> {
+    const _this = this;
+    return new Proxy(_this[kEntries], {
+      get(target: any, prop) {
+        return typeof prop === 'string' ? _this.get(prop) : undefined;
+      },
+      set(target: any, prop, value: any) {
+        if (typeof prop === 'string') {
+          _this.set(prop, value);
+          return true;
+        }
+        return false;
+      },
+      has(target: any, prop) {
+        return typeof prop === 'string' ? _this.has(prop) : false;
+      },
+      deleteProperty(target, prop) {
+        if (typeof prop === 'string') {
+          _this.delete(prop);
+          return true;
+        }
+        return false;
+      },
+      defineProperty(
+        target: any,
+        prop: string | symbol,
+        attributes: PropertyDescriptor,
+      ) {
+        if (typeof prop === 'string') {
+          if (attributes.value !== undefined) _this.set(prop, attributes.value);
+          else _this.delete(prop);
+          return true;
+        }
+        return false;
+      },
+    });
   }
 
   [Symbol.iterator](): IterableIterator<[string, V]> {

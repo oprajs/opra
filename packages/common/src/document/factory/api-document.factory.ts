@@ -29,10 +29,7 @@ export namespace ApiDocumentFactory {
   }
 
   export type ReferenceSource =
-    | string
-    | OpraSchema.ApiDocument
-    | InitArguments
-    | ApiDocument;
+    string | OpraSchema.ApiDocument | InitArguments | ApiDocument;
   export type ReferenceThunk = ThunkAsync<ReferenceSource>;
 
   export type DataTypeInitSources = DataTypeFactory.DataTypeSources;

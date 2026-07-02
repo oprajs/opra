@@ -1,21 +1,23 @@
+import { isPlainObject } from '@jsopen/objects';
 import { mergePrototype } from '@opra/common';
+import type http from 'http';
 import type {
   Options as RangeParserOptions,
   Ranges as RangeParserRanges,
   Result as RangeParserResult,
 } from 'range-parser';
-import { HttpIncomingHost } from '../impl/http-incoming.host.js';
-import { isHttpIncoming, isNodeIncomingMessage } from '../type-guards.js';
+import { HttpRequestHost } from '../impl/http-request.host.js';
+import { IncomingMessageHost } from '../impl/incoming-message-host.js';
+import { isHttpIncomingMessage, isHttpRequest } from '../type-guards.js';
 import { BodyReader } from '../utils/body-reader.js';
-import type { HttpOutgoing } from './http-outgoing.interface.js';
-import { NodeIncomingMessage } from './node-incoming-message.interface.js';
+import type { HttpResponse } from './http-response.interface.js';
 
 /**
- * HttpIncoming represents an incoming HTTP request.
+ * HttpRequest represents an incoming HTTP request.
  * It extends NodeIncomingMessage with additional functionality for handling HTTP requests.
  */
-export interface HttpIncoming extends NodeIncomingMessage {
-  res: HttpOutgoing;
+export interface HttpRequest extends http.IncomingMessage {
+  res: HttpResponse;
 
   baseUrl: string;
 
@@ -234,29 +236,24 @@ export interface HttpIncoming extends NodeIncomingMessage {
   readBody(options?: BodyReader.Options): Promise<string | Buffer | undefined>;
 }
 
-/**
- * Utility functions for HttpIncoming.
- */
-export namespace HttpIncoming {
+export namespace HttpRequest {
   /**
-   * Creates an HttpIncoming instance from various sources.
+   * Creates an HttpRequest instance from various sources.
    *
    * @param instance - The source instance.
    * @returns The HttpIncoming instance.
    */
-  export function from(
-    instance:
-      | HttpIncoming
-      | NodeIncomingMessage.Initiator
-      | string
-      | Iterable<any>
-      | AsyncIterable<any>,
-  ): HttpIncoming {
-    if (isHttpIncoming(instance)) return instance;
-    if (!isNodeIncomingMessage(instance))
-      instance = NodeIncomingMessage.from(instance);
-    mergePrototype(instance, HttpIncomingHost.prototype);
-    const req = instance as HttpIncoming;
+  export function create(
+    instance: http.IncomingMessage | IncomingMessageHost.Initiator,
+  ): HttpRequest {
+    if (isHttpRequest(instance)) return instance;
+    if (!isHttpIncomingMessage(instance)) {
+      if (isPlainObject(instance))
+        instance = IncomingMessageHost.create(instance);
+      else throw new TypeError(`${instance} is not an http IncomingMessage`);
+    }
+    mergePrototype(instance, HttpRequestHost.prototype);
+    const req = instance as HttpRequest;
     req.baseUrl = req.baseUrl || '';
     req.params = req.params || {};
     return req;

@@ -72,8 +72,7 @@ export class OpraKafkaCoreModule
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraKafkaModule.ModuleOptions
-      | OpraKafkaModule.AsyncModuleOptions,
+      OpraKafkaModule.ModuleOptions | OpraKafkaModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions.id || KafkaAdapter;
     const adapterProvider = {

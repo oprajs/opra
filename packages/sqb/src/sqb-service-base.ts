@@ -26,8 +26,7 @@ export class SqbServiceBase extends ServiceBase {
    * The SQB client or connection used by this service.
    */
   db?:
-    | (SqbClient | SqbConnection)
-    | ((_this: this) => SqbClient | SqbConnection);
+    (SqbClient | SqbConnection) | ((_this: this) => SqbClient | SqbConnection);
 
   /**
    * Constructs a new instance.
@@ -94,9 +93,7 @@ export class SqbServiceBase extends ServiceBase {
    * @throws If no database connection is configured.
    */
   getConnection():
-    | SqbConnection
-    | SqbClient
-    | Promise<SqbConnection | SqbClient> {
+    SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
     const ctx = this.context;
     let db = ctx[transactionKey];
     if (db) return db;

@@ -2,30 +2,33 @@ import fs from 'node:fs';
 import os from 'node:os';
 import typeIs from '@browsery/type-is';
 import { BadRequestError, HttpMediaType } from '@opra/common';
-import busboy from 'busboy';
-import { EventEmitter } from 'events';
 import fsPromise from 'fs/promises';
+import * as MP from 'multipasta/node';
+import { AsyncEventEmitter } from 'node-events-async';
 import type { StrictOmit } from 'ts-gems';
 import { isNotNullish, ValidationError } from 'valgen';
-import type { HttpContext } from '../http-context.js';
+import type { HttpRequest } from '../interfaces/http-request.interface.js';
 import { LocalFile } from './local-file.js';
 
 /**
- * MultipartReader is responsible for parsing multipart/form-data requests.
- * It uses busboy to stream incoming parts and can handle both fields and files.
+ * MultipartReader is a drop-in replacement for MultipartReader that uses
+ * `multipasta` instead of `busboy`. The key advantage: part-level headers
+ * (e.g. `Request-Id`) are fully exposed via `item.headers`.
  */
-export class MultipartReader extends EventEmitter {
+export class MultipartReader extends AsyncEventEmitter {
   protected _started = false;
+  protected _streamClosed = false;
   protected _finished = false;
   protected _cancelled = false;
-  protected _form: busboy.Busboy;
+  protected _pendingWrites = 0;
+  protected _stream: MP.MultipastaStream;
   protected _items: MultipartReader.Item[] = [];
   protected _stack: MultipartReader.Item[] = [];
   protected tempDirectory: string;
   scope?: string;
 
   constructor(
-    protected context: HttpContext,
+    protected request: HttpRequest,
     options?: MultipartReader.Options,
     protected mediaType?: HttpMediaType,
   ) {
@@ -34,46 +37,82 @@ export class MultipartReader extends EventEmitter {
     this.tempDirectory = options?.tempDirectory || os.tmpdir();
     this.scope = options?.scope;
 
-    const { request } = context;
-    const form = busboy({ headers: request.headers });
-    this._form = form;
-    form.once('error', (e: any) => {
+    const stream = MP.make({
+      headers: request.headers as Record<string, string>,
+      isFile: options?.isFile,
+    });
+    this._stream = stream;
+
+    stream.once('error', (e: any) => {
       this._cancelled = true;
       this._finished = true;
       if (this.listenerCount('error') > 0) this.emit('error', e);
     });
-    form.on('close', () => {
-      this._finished = true;
+
+    // Stream closed means the parser is done, but file writes may still be in
+    // progress. _finished is set only when stream closes AND all writes complete.
+    stream.on('close', () => {
+      this._streamClosed = true;
+      this._checkFinished();
     });
-    form.on('field', (field: string, value: string, info: busboy.Info) => {
+
+    stream.on('field', (part: MP.Field) => {
+      const headers = _flattenHeaders(part.info.headers);
       const item: MultipartReader.Field = {
         kind: 'field',
-        field,
-        value,
-        mimeType: info.mimeType,
-        encoding: info.encoding,
+        field: part.info.name,
+        value: MP.decodeField(part.info, part.value),
+        mimeType: part.info.contentType,
+        encoding: part.info.contentTypeParameters['charset'],
+        headers,
       };
       this._items.push(item);
       this._stack.push(item);
-      this.emit('field', item);
       this.emit('item', item);
     });
-    form.on('file', (field: string, file, info: busboy.FileInfo) => {
-      const saveTo = LocalFile.tempFilename(info.filename, this.tempDirectory);
-      file.pipe(fs.createWriteStream(saveTo));
-      file.once('end', () => {
-        const item = new MultipartFile(field, saveTo, {
-          filename: info.filename,
-          type: info.mimeType,
-          encoding: info.encoding as BufferEncoding,
-          autoDelete: true,
-        });
-        this._items.push(item);
-        this._stack.push(item);
-        this.emit('file', item);
-        this.emit('item', item);
+
+    stream.on('file', (file: MP.FileStream) => {
+      const saveTo = LocalFile.tempFilename(
+        file.info.filename ?? file.info.name,
+        this.tempDirectory,
+      );
+      const writeStream = fs.createWriteStream(saveTo);
+      file.pipe(writeStream);
+
+      // Build a "ready" promise that resolves when the write is fully flushed.
+      // buffer() / text() await this so callers always read a complete file.
+      const ready = new Promise<void>(resolve =>
+        writeStream.once('finish', resolve),
+      );
+
+      // Emit the item immediately (preserves part order) — the write may
+      // still be in progress, but reading is deferred via ready.
+      const headers = _flattenHeaders(file.info.headers);
+      const item = new MultipartFile(file.info.name, saveTo, ready, {
+        filename: file.info.filename ?? file.info.name,
+        type: file.info.contentType,
+        encoding: (file.info.contentTypeParameters['charset'] ??
+          'utf-8') as BufferEncoding,
+        autoDelete: true,
+        headers,
+      });
+      this._items.push(item);
+      this._stack.push(item);
+      this.emit('item', item);
+
+      this._pendingWrites++;
+      ready.then(() => {
+        this._pendingWrites--;
+        this._checkFinished();
       });
     });
+  }
+
+  protected _checkFinished() {
+    if (this._streamClosed && this._pendingWrites === 0) {
+      this._finished = true;
+      this.emit('_finished');
+    }
   }
 
   get items(): MultipartReader.Item[] {
@@ -82,9 +121,6 @@ export class MultipartReader extends EventEmitter {
 
   /**
    * Retrieves the next item (field or file) from the multipart stream.
-   *
-   * @returns A promise that resolves to the next item, or undefined if no more items are available.
-   * @throws {@link BadRequestError} If a field is unknown or validation fails.
    */
   async getNext(): Promise<MultipartReader.Item | undefined> {
     let item = this._stack.shift();
@@ -93,14 +129,17 @@ export class MultipartReader extends EventEmitter {
       item = await new Promise<any>((resolve, reject) => {
         let resolved = false;
         if (this._stack.length) return resolve(this._stack.shift());
-        if ((this._form as any).ended) return resolve(undefined);
-        this._form.once('close', () => {
+        if (this._finished) return resolve(this._stack.shift());
+        const onDone = () => {
           if (resolved) return;
           resolved = true;
           resolve(this._stack.shift());
-        });
+        };
+        // _finished fires only after stream closes AND all file writes complete
+        this.once('_finished', onDone);
         this.once('item', () => {
           this.pause();
+          this.removeListener('_finished', onDone);
           if (resolved) return;
           resolved = true;
           resolve(this._stack.shift());
@@ -108,6 +147,7 @@ export class MultipartReader extends EventEmitter {
         this.once('error', e => reject(e));
       });
     }
+
     if (item && this.mediaType) {
       const field = this.mediaType.findMultipartField(item.field);
       if (!field)
@@ -123,6 +163,7 @@ export class MultipartReader extends EventEmitter {
             `Multipart field (${item.field}) validation failed: ` +
             issue.message,
         });
+        this.emit('field', item);
       } else if (item.kind === 'file') {
         if (field.contentType) {
           const arr = Array.isArray(field.contentType)
@@ -134,6 +175,7 @@ export class MultipartReader extends EventEmitter {
             );
           }
         }
+        this.emit('file', item);
       }
     }
 
@@ -148,7 +190,7 @@ export class MultipartReader extends EventEmitter {
         const field = this.mediaType.findMultipartField(x.field);
         if (field) fieldsLeft.delete(field);
       }
-      let issues: any[] | undefined;
+      let error: ValidationError | undefined;
       for (const field of fieldsLeft) {
         if (!field.required) continue;
         try {
@@ -157,21 +199,24 @@ export class MultipartReader extends EventEmitter {
               `Multi part field "${String(field.fieldName)}" is required`,
           });
         } catch (e: any) {
-          if (!issues) {
-            issues = (e as ValidationError).issues;
-            this.context.errors.push(e);
-          } else issues.push(...(e as ValidationError).issues);
+          if (!error) {
+            error = e;
+          } else
+            (error as ValidationError).issues.push(
+              ...(e as ValidationError).issues,
+            );
         }
       }
-      if (this.context.errors.length) throw this.context.errors[0];
+      if (error) {
+        this.emit('error', error);
+        throw error;
+      }
     }
     return item;
   }
 
   /**
    * Retrieves all items from the multipart stream.
-   *
-   * @returns A promise that resolves to an array of all items.
    */
   async getAll(): Promise<MultipartReader.Item[]> {
     const items: MultipartReader.Item[] = [...this._items];
@@ -182,38 +227,27 @@ export class MultipartReader extends EventEmitter {
     return items;
   }
 
-  getAll_(): Promise<MultipartReader.Item[]> {
-    if ((this._form as any).ended) return Promise.resolve([...this._items]);
-    this.resume();
-    return new Promise((resolve, reject) => {
-      this._form.once('error', reject);
-      this._form.once('end', () => {
-        resolve([...this._items]);
-      });
-    });
-  }
-
   cancel() {
     this._cancelled = true;
-    if ((this._form as any).req) this.resume();
+    if (this._started) this.resume();
   }
 
   resume() {
     if (!this._started) {
       this._started = true;
-      this.context.request.pipe(this._form);
+      this.request.pipe(this._stream);
+      // Drain the readable side of the Duplex so 'end' → 'close' can fire.
+      this._stream.resume();
     }
-    this.context.request.resume();
+    this.request.resume();
   }
 
   pause() {
-    this.context.request.pause();
+    this.request.pause();
   }
 
   /**
    * Purges all temporary files created by the reader.
-   *
-   * @returns A promise that resolves when all files are purged.
    */
   async purge() {
     const promises: Promise<any>[] = [];
@@ -225,25 +259,53 @@ export class MultipartReader extends EventEmitter {
   }
 }
 
-export class MultipartFile extends LocalFile {
+/**
+ *
+ * @class
+ */
+class MultipartFile extends LocalFile {
   readonly kind = 'file';
   readonly field: string;
+  readonly headers: Record<string, string>;
+  private readonly _ready: Promise<void>;
+
   constructor(
     field: string,
     storedPath: string,
-    options: LocalFile.Options = {
+    ready: Promise<void>,
+    options: LocalFile.Options & { headers?: Record<string, string> } = {
       autoDelete: true,
     },
   ) {
     super(storedPath, options);
     this.field = field;
+    this.headers = options.headers ?? {};
+    this._ready = ready;
+  }
+
+  async text(): Promise<string> {
+    await this._ready;
+    return super.text();
+  }
+
+  async buffer(): Promise<Buffer> {
+    await this._ready;
+    return super.buffer();
   }
 }
 
+/**
+ *
+ * @namespace
+ */
 export namespace MultipartReader {
-  export interface Options extends StrictOmit<busboy.BusboyConfig, 'headers'> {
+  export interface Options extends StrictOmit<
+    MP.NodeConfig,
+    'headers' | 'isFile'
+  > {
     tempDirectory?: string;
     scope?: string;
+    isFile?: (info: MP.PartInfo) => boolean;
   }
 
   export interface Field {
@@ -252,9 +314,20 @@ export namespace MultipartReader {
     value?: any;
     mimeType?: string;
     encoding?: string;
+    headers?: Record<string, string>;
   }
 
   export type File = MultipartFile;
 
   export type Item = Field | File;
+}
+
+function _flattenHeaders(
+  headers: Record<string, string | string[]>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(headers)) {
+    out[k] = Array.isArray(v) ? v.join(', ') : v;
+  }
+  return out;
 }

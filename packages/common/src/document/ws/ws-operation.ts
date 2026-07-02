@@ -24,8 +24,7 @@ export namespace WSOperation {
   > {
     arguments?: {
       type:
-        | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>
-        | string;
+        ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray> | string;
       parameterIndex: number;
       required?: boolean;
     }[];
@@ -36,8 +35,7 @@ export namespace WSOperation {
   export interface Options extends Partial<Pick<Metadata, 'description'>> {
     event?: string | RegExp;
     response?:
-      | string
-      | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>;
+      string | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>;
   }
 
   export interface InitArguments extends Combine<

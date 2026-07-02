@@ -13,10 +13,7 @@ export interface HttpControllerDecorator<
   Cookie(
     name: string | RegExp,
     optionsOrType?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ): T;
 
   Header(
@@ -111,10 +108,7 @@ export function HttpControllerDecoratorFactory<
   decorator.Cookie = (
     name: string | RegExp,
     arg1?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -137,10 +131,7 @@ export function HttpControllerDecoratorFactory<
   decorator.Header = (
     name: string | RegExp,
     arg1?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -163,10 +154,7 @@ export function HttpControllerDecoratorFactory<
   decorator.QueryParam = (
     name: string | RegExp,
     arg1?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -189,10 +177,7 @@ export function HttpControllerDecoratorFactory<
   decorator.PathParam = (
     name: string | RegExp,
     arg1?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -215,10 +200,7 @@ export function HttpControllerDecoratorFactory<
   decorator.KeyParam = (
     name: string | RegExp,
     arg1?:
-      | StrictOmit<HttpParameter.Options, 'location'>
-      | string
-      | Type
-      | false,
+      StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       if (!meta.path?.includes(':' + name))

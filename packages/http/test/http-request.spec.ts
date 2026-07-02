@@ -1,23 +1,21 @@
-import { HttpIncoming, NodeIncomingMessage } from '@opra/http';
+import { HttpRequest } from '@opra/http';
 import { expect } from 'expect';
 
 describe('http:HttpIncoming', () => {
   it('Should wrap HttpIncomingMessage', async () => {
-    const msg = HttpIncoming.from(
-      NodeIncomingMessage.from({
-        method: 'get',
-      }),
-    );
+    const msg = HttpRequest.create({
+      method: 'get',
+    });
     expect(msg.method).toStrictEqual('GET');
   });
 
   it('Should create with HttpIncomingMessage initiator', async () => {
-    const msg = HttpIncoming.from({ method: 'get' });
+    const msg = HttpRequest.create({ method: 'get' });
     expect(msg.method).toStrictEqual('GET');
   });
 
   it('Should return protocol', async () => {
-    const msg = HttpIncoming.from({ method: 'get' });
+    const msg = HttpRequest.create({ method: 'get' });
     expect(msg.protocol).toStrictEqual('http');
     expect(msg.secure).toStrictEqual(false);
     msg.headers['x-forwarded-proto'] = 'https';
@@ -26,7 +24,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should return hostname', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Host', 'tempuri.org'],
     });
@@ -38,7 +36,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should accepts() check if the given type(s) is acceptable', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Accept', 'text/*, application/json'],
     });
@@ -49,7 +47,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should acceptsCharsets() check if given charset is acceptable', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Accept-Charset', 'utf-8, ascii'],
     });
@@ -59,7 +57,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should acceptsEncodings() check given encoding is acceptable', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Accept-Encoding', 'gzip, compress;q=0.2'],
     });
@@ -69,7 +67,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should acceptsLanguages() check given language is acceptable', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Accept-Language', 'en;q=0.8, es, pt'],
     });
@@ -79,7 +77,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should is() check content-type matches given value', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Content-Type', 'text/html'],
     });
@@ -92,7 +90,7 @@ describe('http:HttpIncoming', () => {
   });
 
   it('Should range() return parsed "Range" header', async () => {
-    const msg = HttpIncoming.from({
+    const msg = HttpRequest.create({
       method: 'get',
       headers: ['Range', 'bytes=50-55,0-10,5-10,56-60'],
     });

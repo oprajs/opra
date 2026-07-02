@@ -43,8 +43,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   readonly transform: OpraSchema.Transport = 'mq';
   readonly platform = RabbitmqAdapter.PlatformName;
   readonly interceptors: (
-    | RabbitmqAdapter.InterceptorFunction
-    | RabbitmqAdapter.IRabbitmqInterceptor
+    RabbitmqAdapter.InterceptorFunction | RabbitmqAdapter.IRabbitmqInterceptor
   )[];
 
   /**
@@ -58,12 +57,10 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     super(config);
     this._document = document;
     this._config = config;
-    if (
-      !(
-        this.document.api instanceof MQApi &&
-        this.document.api.platform === RabbitmqAdapter.PlatformName
-      )
-    ) {
+    if (!(
+      this.document.api instanceof MQApi &&
+      this.document.api.platform === RabbitmqAdapter.PlatformName
+    )) {
       throw new TypeError(`The document doesn't expose a RabbitMQ Api`);
     }
     this.interceptors = [...(config.interceptors || [])];

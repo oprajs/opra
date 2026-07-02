@@ -48,11 +48,15 @@ export class UsersController extends MongoCollectionService<User> {
   }
 
   @HttpOperation.Entity.FindMany({ type: User })
-  findMany() { return super.findMany(); }
+  findMany() {
+    return super.findMany();
+  }
 
   @HttpOperation.Entity.GetOne({ type: User })
   @HttpOperation.PathParam('id', 'objectId')
-  getOne(id: ObjectId) { return super.getOne(id); }
+  getOne(id: ObjectId) {
+    return super.getOne(id);
+  }
 }
 ```
 

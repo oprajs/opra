@@ -65,8 +65,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   readonly transform: OpraSchema.Transport = 'mq';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (
-    | KafkaAdapter.InterceptorFunction
-    | KafkaAdapter.IKafkaInterceptor
+    KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor
   )[];
 
   /**
@@ -80,12 +79,10 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     super(config);
     this._document = document;
     this._config = config;
-    if (
-      !(
-        this.document.api instanceof MQApi &&
-        this.document.api.platform === KafkaAdapter.PlatformName
-      )
-    ) {
+    if (!(
+      this.document.api instanceof MQApi &&
+      this.document.api.platform === KafkaAdapter.PlatformName
+    )) {
       throw new TypeError(`The document doesn't expose a Kafka Api`);
     }
     // this._config = config;

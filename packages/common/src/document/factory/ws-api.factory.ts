@@ -12,10 +12,7 @@ import { DataTypeFactory } from './data-type.factory.js';
 export namespace WSApiFactory {
   export interface InitArguments extends WSApi.InitArguments {
     controllers:
-      | Type[]
-      | any[]
-      | ((parent: any) => any)
-      | OpraSchema.WSApi['controllers'];
+      Type[] | any[] | ((parent: any) => any) | OpraSchema.WSApi['controllers'];
   }
 }
 
