@@ -1,5 +1,6 @@
 import { DocumentNode, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
+import type { ExecutionBundle } from './execution-bundle.js';
 import type { PlatformAdapter } from './platform-adapter.js';
 
 /**
@@ -7,10 +8,12 @@ import type { PlatformAdapter } from './platform-adapter.js';
  * It carries information about the document node, adapter, transport, and platform.
  */
 export class ExecutionContext extends AsyncEventEmitter {
-  /** The document node associated with this context */
-  readonly __docNode: DocumentNode;
   /** The platform adapter that created this context */
   readonly __adapter: PlatformAdapter;
+  /** The document node associated with this context */
+  readonly __docNode: DocumentNode;
+  /** The execution bundle associated with this context */
+  readonly __bundle?: ExecutionBundle;
   /** The transport protocol being used (e.g., 'http', 'socketio') */
   readonly transport?: OpraSchema.Transport;
   /** The platform name (e.g., 'express', 'koa') */
@@ -27,6 +30,7 @@ export class ExecutionContext extends AsyncEventEmitter {
     super();
     this.__adapter = init.__adapter;
     this.__docNode = init.__docNode;
+    this.__bundle = init.__bundle;
     this.transport = init.transport;
     this.platform = init.platform || '';
   }
@@ -44,6 +48,8 @@ export namespace ExecutionContext {
     __adapter: PlatformAdapter;
     /** The document node */
     __docNode: DocumentNode;
+    /** The execution bundle */
+    __bundle?: ExecutionBundle;
     /** The transport protocol */
     transport?: OpraSchema.Transport;
     /** The platform name */

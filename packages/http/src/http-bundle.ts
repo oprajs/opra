@@ -1,11 +1,11 @@
-import { ExecutionContext } from '@opra/core';
+import { ExecutionBundle, ExecutionContext } from '@opra/core';
 import type { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpRequest } from './interfaces/http-request.interface.js';
 import type { HttpResponse } from './interfaces/http-response.interface.js';
 
-export class HttpBundle extends ExecutionContext {
+export class HttpBundle extends ExecutionBundle {
   declare readonly __adapter: HttpAdapter;
   protected _multipartReader?: MultipartReader;
   readonly request: HttpRequest;
@@ -19,7 +19,6 @@ export class HttpBundle extends ExecutionContext {
   constructor(init: HttpBundle.Initiator) {
     super({
       ...init,
-      __docNode: init.__adapter.document.node,
       transport: 'http',
     });
     this.request = init.request;

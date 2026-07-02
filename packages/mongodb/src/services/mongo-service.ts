@@ -406,7 +406,7 @@ export class MongoService<
     const ctx = this.context;
     let closeSessionOnFinish = false;
 
-    let transaction = ctx[transactionKey];
+    let transaction = ctx[transactionKey] || ctx.__bundle?.[transactionKey];
     let session: mongodb.ClientSession;
 
     if (transaction) {
@@ -450,7 +450,7 @@ export class MongoService<
    */
   protected getDatabase(): mongodb.Db {
     const ctx = this.context;
-    const transaction = ctx[transactionKey];
+    const transaction = ctx[transactionKey] || ctx.__bundle?.[transactionKey];
     if (transaction) return transaction.db;
     const db = typeof this.db === 'function' ? this.db(this) : this.db;
     if (db) return db;
@@ -465,7 +465,7 @@ export class MongoService<
    */
   protected getSession(): mongodb.ClientSession | undefined {
     const ctx = this.context;
-    const transaction = ctx[transactionKey];
+    const transaction = ctx[transactionKey] || ctx.__bundle?.[transactionKey];
     if (transaction) return transaction.session;
     const session =
       typeof this.session === 'function' ? this.session(this) : this.session;

@@ -38,6 +38,7 @@ import {
   type Validator,
   vg,
 } from 'valgen';
+import { kBundle } from './constants.js';
 import type { HttpBundle } from './http-bundle.js';
 import { HttpContext } from './http-context.js';
 import { IncomingMessageHost } from './impl/incoming-message-host.js';
@@ -90,13 +91,14 @@ export abstract class HttpAdapter<
     const response = HttpResponse.create(_res);
     const ctx = new HttpContext({
       __adapter: this,
-      platform: this.platform,
-      request,
-      response,
+      __bundle: _res[kBundle],
       __contDef: args?.controller,
       __controller: args?.controllerInstance,
       __oprDef: args?.operation,
       __handler: args?.operationHandler,
+      platform: this.platform,
+      request,
+      response,
     });
     await this.emitAsync('create-context', ctx);
     return ctx;
@@ -228,6 +230,7 @@ export abstract class HttpAdapter<
       const buffer = await item.buffer();
       const req = await IncomingMessageHost.from(buffer);
       const res = ServerResponseHost.create(req);
+      req[kBundle] = bundle;
       await this.handleRawRequest(req, res);
       // Wait for all data to be written into the capacitor
       if (!res.writableEnded)

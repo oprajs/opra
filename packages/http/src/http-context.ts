@@ -26,9 +26,9 @@ export class HttpContext extends ExecutionContext {
   declare readonly __controller: any;
   declare readonly __handler?: Function;
   declare readonly __adapter: HttpAdapter;
+  declare readonly __bundle?: HttpBundle;
   readonly request: HttpRequest;
   readonly response: HttpResponse;
-  readonly bundle?: HttpBundle;
   readonly mediaType?: HttpMediaType;
   readonly cookies: Record<string, any>;
   readonly headers: Record<string, any>;
@@ -49,9 +49,9 @@ export class HttpContext extends ExecutionContext {
     if (init.__contDef) this.__contDef = Object.create(init.__contDef);
     if (init.__oprDef) this.__oprDef = Object.create(init.__oprDef);
     if (init.__handler) this.__handler = init.__handler;
+    if (init.__bundle) this.__bundle = init.__bundle;
     this.request = init.request;
     this.response = init.response;
-    this.bundle = init.bundle;
     this.mediaType = init.mediaType;
     this.cookies = init.cookies || {};
     this.headers = init.headers || {};
@@ -210,9 +210,9 @@ export namespace HttpContext {
     __oprDef?: HttpOperation;
     __controller?: any;
     __handler?: Function;
+    __bundle?: HttpBundle;
     request: HttpRequest;
     response: HttpResponse;
-    bundle?: HttpBundle;
     cookies?: Record<string, any>;
     headers?: Record<string, any>;
     pathParams?: Record<string, any>;
