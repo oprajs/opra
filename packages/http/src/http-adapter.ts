@@ -91,7 +91,7 @@ export abstract class HttpAdapter<
     const response = HttpResponse.create(_res);
     const ctx = new HttpContext({
       __adapter: this,
-      __bundle: _res[kBundle],
+      bundle: _res[kBundle],
       __contDef: args?.controller,
       __controller: args?.controllerInstance,
       __oprDef: args?.operation,

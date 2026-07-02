@@ -52,7 +52,7 @@ export class SqbServiceBase extends ServiceBase {
     let closeSessionOnFinish = false;
 
     let connection: SqbConnection | undefined =
-      ctx[transactionKey] || ctx.__bundle?.[transactionKey];
+      ctx[transactionKey] || ctx.bundle?.[transactionKey];
     if (!connection) {
       /* Determine the SqbClient or SqbConnection instance */
       const db = await this.getConnection();
@@ -96,7 +96,7 @@ export class SqbServiceBase extends ServiceBase {
   getConnection():
     SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
     const ctx = this.context;
-    let db = ctx[transactionKey] || ctx.__bundle?.[transactionKey];
+    let db = ctx[transactionKey] || ctx.bundle?.[transactionKey];
     if (db) return db;
     db = typeof this.db === 'function' ? this.db(this) : this.db;
     if (db) return db;

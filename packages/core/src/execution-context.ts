@@ -13,7 +13,7 @@ export class ExecutionContext extends AsyncEventEmitter {
   /** The document node associated with this context */
   readonly __docNode: DocumentNode;
   /** The execution bundle associated with this context */
-  readonly __bundle?: ExecutionBundle;
+  readonly bundle?: ExecutionBundle;
   /** The transport protocol being used (e.g., 'http', 'socketio') */
   readonly transport?: OpraSchema.Transport;
   /** The platform name (e.g., 'express', 'koa') */
@@ -30,7 +30,7 @@ export class ExecutionContext extends AsyncEventEmitter {
     super();
     this.__adapter = init.__adapter;
     this.__docNode = init.__docNode;
-    this.__bundle = init.__bundle;
+    this.bundle = init.bundle;
     this.transport = init.transport;
     this.platform = init.platform || '';
   }
@@ -49,7 +49,7 @@ export namespace ExecutionContext {
     /** The document node */
     __docNode: DocumentNode;
     /** The execution bundle */
-    __bundle?: ExecutionBundle;
+    bundle?: ExecutionBundle;
     /** The transport protocol */
     transport?: OpraSchema.Transport;
     /** The platform name */
