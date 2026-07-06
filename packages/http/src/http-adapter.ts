@@ -151,10 +151,35 @@ export abstract class HttpAdapter<
         }
         throw new BadRequestError(e);
       }
-
       await this.emitAsync('request', context);
+      if (!context.__handler) throw new MethodNotAllowedError();
 
-      // Call interceptors than execute request
+      const execute = async () => {
+        await context.emitAsync('before-execute', context);
+        await this.emitAsync('context-before-execute', context);
+        /* Call operation handler */
+        const responseValue = await context.__handler!.call(
+          context.__controller,
+          context,
+        );
+        context.success =
+          !context.errors.length && context.response.statusCode < 400;
+        await context.emitAsyncSafe('after-execute', responseValue, context);
+        await this.emitAsyncSafe(
+          'context-after-execute',
+          responseValue,
+          context,
+        );
+        // context
+        /* Send response if not ended yet */
+        if (!response.writableEnded) {
+          await this.sendResponse(context, responseValue).finally(() => {
+            if (!response.writableEnded) response.end();
+          });
+        }
+      };
+
+      // Call interceptors
       if (this.interceptors) {
         const interceptors = this.interceptors;
         let i = 0;
@@ -164,11 +189,12 @@ export abstract class HttpAdapter<
             await interceptor(context, next);
           else if (typeof interceptor?.intercept === 'function')
             await interceptor.intercept(context, next);
-          await this._executeRequest(context);
+          await execute();
         };
         await next();
-      } else await this._executeRequest(context);
+      } else await execute();
     } catch (error: any) {
+      context.success = false;
       let e = error;
       if (e instanceof ValidationError) {
         e = new InternalServerError(
@@ -180,33 +206,13 @@ export abstract class HttpAdapter<
           e,
         );
       } else e = wrapException(e);
-      await this.emitAsync('error', e, context);
+      await this.emitAsyncSafe('error', e, context);
       context.errors.push(e);
       await this.sendResponse(context);
     } finally {
-      await context.emitAsync('finish', context);
-    }
-  }
-
-  /**
-   * Parses the HTTP request, including parameters and content type.
-   *
-   * @param context - The HTTP execution context.
-   * @returns A promise that resolves when the request is parsed.
-   */
-  async parseRequest(context: HttpContext): Promise<void> {
-    await this._parseParameters(context);
-    await this._parseContentType(context);
-    if (context.__oprDef?.requestBody?.immediateFetch) await context.getBody();
-    /* Set default status code as the first status code between 200 and 299 */
-    if (context.__oprDef) {
-      for (const r of context.__oprDef.responses) {
-        const st = r.statusCode.find(sc => sc.start <= 299 && sc.end >= 200);
-        if (st) {
-          context.response.status(st.start);
-          break;
-        }
-      }
+      context.finished = true;
+      await context.emitAsyncSafe('finish', context);
+      await this.emitAsyncSafe('context-finish', context);
     }
   }
 
@@ -224,25 +230,42 @@ export abstract class HttpAdapter<
       requestId: string;
     }[] = [];
 
-    // Process all sub-requests and buffer their responses
-    while ((item = await reader.getNext())) {
-      if (item.kind !== 'file') continue;
-      const buffer = await item.buffer();
-      const req = await IncomingMessageHost.from(buffer);
-      const res = ServerResponseHost.create(req);
-      req[kBundle] = bundle;
-      await this.handleRawRequest(req, res);
-      // Wait for all data to be written into the capacitor
-      if (!res.writableEnded)
-        await new Promise<void>(resolve => res.once('finish', resolve));
-      subResponses.push({
-        response: res,
-        requestId: String(item.headers['x-request-id'] || ''),
-      });
+    try {
+      await bundle.emitAsync('before-execute', bundle);
+      await this.emitAsync('bundle-before-execute', bundle);
+      // Process all sub-requests and buffer their responses
+      while ((item = await reader.getNext())) {
+        if (item.kind !== 'file') continue;
+        const buffer = await item.buffer();
+        const req = await IncomingMessageHost.from(buffer);
+        const res = ServerResponseHost.create(req);
+        req[kBundle] = bundle;
+        await this.handleRawRequest(req, res);
+        // Wait for request to be fully processed
+        if (!res.writableEnded)
+          await new Promise<void>(resolve => res.once('finish', resolve));
+        subResponses.push({
+          response: res,
+          requestId: String(item.headers['x-request-id'] || ''),
+        });
+      }
+      bundle.finished = true;
+      bundle.success = !bundle.contexts.find(c => !c.success);
+    } catch (e) {
+      const error = wrapException(e);
+      bundle.error = error;
+      bundle.success = false;
+      bundle.finished = true;
+      await bundle.emitAsyncSafe('error', error, bundle);
+      await this._sendErrorResponse(response, [error], bundle);
+      return;
+    } finally {
+      await bundle.emitAsyncSafe('finish', bundle);
+      await this.emitAsyncSafe('bundle-finish', bundle);
     }
 
     // Add all parts synchronously before piping so SandwichStream
-    // sees a fully-populated queue and ends cleanly after the last part
+    // sees a fully populated queue and ends cleanly after the last part
     const stream = new MultipartStream();
     response.setHeader(
       'Content-Type',
@@ -270,6 +293,29 @@ export abstract class HttpAdapter<
       });
       stream.resume();
     });
+    await bundle.emitAsync('finish', bundle);
+  }
+
+  /**
+   * Parses the HTTP request, including parameters and content type.
+   *
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when the request is parsed.
+   */
+  async parseRequest(context: HttpContext): Promise<void> {
+    await this._parseParameters(context);
+    await this._parseContentType(context);
+    if (context.__oprDef?.requestBody?.immediateFetch) await context.getBody();
+    /* Set default status code as the first status code between 200 and 299 */
+    if (context.__oprDef) {
+      for (const r of context.__oprDef.responses) {
+        const st = r.statusCode.find(sc => sc.start <= 299 && sc.end >= 200);
+        if (st) {
+          context.response.status(st.start);
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -478,25 +524,6 @@ export abstract class HttpAdapter<
   }
 
   /**
-   *
-   * @param context
-   * @protected
-   */
-  protected async _executeRequest(context: HttpContext): Promise<any> {
-    if (!context.__handler) throw new MethodNotAllowedError();
-    const responseValue = await context.__handler.call(
-      context.__controller,
-      context,
-    );
-    const { response } = context;
-    if (!response.writableEnded) {
-      await this.sendResponse(context, responseValue).finally(() => {
-        if (!response.writableEnded) response.end();
-      });
-    }
-  }
-
-  /**
    * Sends an HTTP response back to the client.
    *
    * @param context - The HTTP execution context.
@@ -504,7 +531,10 @@ export abstract class HttpAdapter<
    * @returns A promise that resolves when the response is sent.
    */
   async sendResponse(context: HttpContext, responseValue?: any): Promise<void> {
-    if (context.errors.length) return this._sendErrorResponse(context);
+    if (context.errors.length) {
+      context.errors = this._wrapExceptions(context.errors);
+      return this._sendErrorResponse(context.response, context.errors, context);
+    }
     const { response } = context;
     const { document } = this;
     try {
@@ -623,32 +653,24 @@ export abstract class HttpAdapter<
       response.end(x);
     } catch (error: any) {
       context.errors.push(error);
-      return this._sendErrorResponse(context);
+      context.errors = this._wrapExceptions(context.errors);
+      return this._sendErrorResponse(context.response, context.errors, context);
     }
   }
 
-  protected async _sendErrorResponse(context: HttpContext): Promise<void> {
-    let errors = (context.errors = this._wrapExceptions(context.errors));
-    try {
-      if (context.listenerCount('error')) {
-        await context.emitAsync('error', errors[0], context);
-        errors = context.errors = this._wrapExceptions(context.errors);
-      }
-      if (this.listenerCount('error')) {
-        await this.emitAsync('error', errors[0], context);
-        errors = context.errors = this._wrapExceptions(errors);
-      }
-      if (this.logger?.error) {
-        const logger = this.logger;
-        errors.forEach(e => {
-          if (e.status >= 500 && e.status < 600) logger.error(e);
-        });
-      }
-    } catch (e) {
-      context.errors = this._wrapExceptions([e, ...context.errors]);
+  protected async _sendErrorResponse(
+    response: HttpResponse,
+    errors: any[],
+    context: HttpContext | HttpBundle,
+  ): Promise<void> {
+    context.emitSafe('error', errors[0], context);
+    if (this.logger?.error) {
+      const logger = this.logger;
+      errors.forEach(e => {
+        if (e.status >= 500 && e.status < 600) logger.error(e);
+      });
     }
 
-    const { response } = context;
     if (response.headersSent) {
       response.end();
       return;
@@ -960,9 +982,20 @@ export namespace HttpAdapter {
   }
 
   export interface Events {
-    createContext: [HttpContext];
-    error: [Error, HttpContext];
-    request: [HttpContext];
-    finish: [HttpContext];
+    createContext: [context: HttpContext];
+    error: [error: Error, context?: HttpContext];
+    request: [context: HttpContext];
+    /* Emitted before an operation starts execution */
+    'context-before-execute': [context: HttpContext];
+    /* Emitted after an operation starts execution */
+    'context-after-execute': [context: HttpContext];
+    /* Emitted when an operation finishes successfully */
+    'context-finish': [responseValue: any, context: HttpContext];
+    /* Emitted before an operation starts execution */
+    'bundle-before-execute': [context: HttpBundle];
+    /* Emitted after an operation starts execution */
+    'bundle-after-execute': [context: HttpBundle];
+    /* Emitted when an operation finishes successfully */
+    'bundle-finish': [responseValue: any, context: HttpBundle];
   }
 }
