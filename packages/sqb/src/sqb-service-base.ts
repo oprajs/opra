@@ -1,7 +1,7 @@
 import { ServiceBase } from '@opra/core';
 import { SqbClient, SqbConnection } from '@sqb/connect';
 
-const transactionKey = Symbol.for('transaction');
+const dbSessionKey = Symbol.for('db-session');
 
 /**
  * Namespace for SqbServiceBase types and options.
@@ -52,7 +52,7 @@ export class SqbServiceBase extends ServiceBase {
     let closeSessionOnFinish = false;
 
     let connection: SqbConnection | undefined =
-      ctx[transactionKey] || ctx.bundle?.[transactionKey];
+      ctx[dbSessionKey] || ctx.bundle?.[dbSessionKey];
     if (!connection) {
       /* Determine the SqbClient or SqbConnection instance */
       const db = await this.getConnection();
@@ -64,7 +64,7 @@ export class SqbServiceBase extends ServiceBase {
         closeSessionOnFinish = true;
       }
       /* Store transaction connection in current context */
-      ctx[transactionKey] = connection;
+      ctx[dbSessionKey] = connection;
     }
 
     const oldInTransaction = connection.inTransaction;
@@ -80,7 +80,7 @@ export class SqbServiceBase extends ServiceBase {
         await connection.rollback();
       throw e;
     } finally {
-      delete ctx[transactionKey];
+      delete ctx[dbSessionKey];
       /* Release connection */
       if (closeSessionOnFinish) {
         await connection.close();
@@ -93,13 +93,36 @@ export class SqbServiceBase extends ServiceBase {
    *
    * @throws If no database connection is configured.
    */
-  getConnection():
-    SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
+  async getConnection(): Promise<SqbConnection | SqbClient> {
     const ctx = this.context;
-    let db = ctx[transactionKey] || ctx.bundle?.[transactionKey];
+    let db = ctx[dbSessionKey] || ctx.bundle?.[dbSessionKey];
     if (db) return db;
     db = typeof this.db === 'function' ? this.db(this) : this.db;
-    if (db) return db;
-    throw new Error(`Database not set!`);
+    if (!db) throw new Error(`Database not set!`);
+    if (ctx.bundle?.transaction) {
+      const connection: SqbConnection =
+        db instanceof SqbConnection
+          ? db
+          : await db.acquire({ autoCommit: false });
+      /* Start transaction */
+      if (!connection.inTransaction) {
+        await connection.startTransaction();
+      }
+      ctx.bundle![dbSessionKey] = connection;
+      /* Commit or Rollback transaction after executed */
+      ctx.bundle!.on('after-execute', async () => {
+        delete ctx.bundle![dbSessionKey];
+        try {
+          if (connection.inTransaction) {
+            if (ctx.bundle!.success) await connection.commit();
+            else await connection.rollback();
+          }
+        } finally {
+          await connection.close();
+        }
+      });
+      return connection;
+    }
+    return db;
   }
 }
