@@ -1,4 +1,4 @@
-import { OpraSchema } from '@opra/common';
+import { OpraException, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
 import type { ExecutionContext } from './execution-context.js';
 import type { PlatformAdapter } from './platform-adapter.js';
@@ -15,6 +15,11 @@ export class ExecutionBundle extends AsyncEventEmitter {
   readonly platform: string = '';
   /** A collection of ExecutionContext created during execution */
   contexts: ExecutionContext[] = [];
+  /** Whether a transaction will be used in this bundle context */
+  readonly transaction?: boolean;
+  success?: boolean;
+  finished?: boolean;
+  error?: OpraException;
 
   /**
    * Creates a new ExecutionContext instance.
