@@ -1,5 +1,5 @@
 import { DocumentNode, OpraSchema } from '@opra/common';
-import { AsyncEventEmitter } from 'node-events-async';
+import { AsyncEventEmitter, type EventMap } from 'node-events-async';
 import type { ExecutionBundle } from './execution-bundle.js';
 import type { PlatformAdapter } from './platform-adapter.js';
 
@@ -7,7 +7,9 @@ import type { PlatformAdapter } from './platform-adapter.js';
  * ExecutionContext provides a context for executing operations within an adapter.
  * It carries information about the document node, adapter, transport, and platform.
  */
-export class ExecutionContext extends AsyncEventEmitter {
+export class ExecutionContext<
+  T extends EventMap<T> = never,
+> extends AsyncEventEmitter<T> {
   /** The platform adapter that created this context */
   readonly __adapter: PlatformAdapter;
   /** The document node associated with this context */
@@ -20,6 +22,8 @@ export class ExecutionContext extends AsyncEventEmitter {
   readonly platform: string = '';
   /** A collection of errors encountered during execution */
   errors: Error[] = [];
+  success?: boolean;
+  finished?: boolean;
 
   /**
    * Creates a new ExecutionContext instance.
