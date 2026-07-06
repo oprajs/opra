@@ -220,4 +220,11 @@ export namespace HttpContext {
     mediaType?: HttpMediaType;
     body?: any;
   }
+
+  export interface Events {
+    'before-execute': [_this: HttpContext];
+    'after-execute': [responseValue: any, _this: HttpContext];
+    error: [Error, _this: HttpContext];
+    finish: [_this: HttpContext];
+  }
 }
