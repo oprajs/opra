@@ -448,14 +448,20 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         rawMessage: message,
         commit: () => message.commit(),
       });
+      await this.emitAsync('create-context', context);
 
-      await this.emitAsync('execute', context);
       try {
+        await context.emitAsync('before-execute', context);
+        await this.emitAsync('context-before-execute', context);
         /* Call operation handler */
-        const result = await operationHandler.call(instance, context);
-        await this.emitAsync('finish', context, result);
+        await operationHandler.call(instance, context);
+        await context.emitAsyncSafe('after-execute', context);
+        await this.emitAsyncSafe('context-after-execute', context);
       } catch (e: any) {
         this._emitError(e, context);
+      } finally {
+        await context.emitAsyncSafe('finish', context);
+        await this.emitAsyncSafe('context-finish', context);
       }
     };
   }
@@ -595,11 +601,13 @@ export namespace KafkaAdapter {
   export interface Events {
     /* Emitted when an error occurs */
     error: [error: Error, context: KafkaContext | undefined];
-    /* Emitted when an operation finishes successfully */
-    finish: [context: KafkaContext, result: any];
-    /* Emitted when an operation starts execution */
-    execute: [context: KafkaContext];
     /* Emitted when a message is received from Kafka */
     message: [message: Message];
+    /* Emitted before an operation starts execution */
+    'context-before-execute': [context: KafkaContext];
+    /* Emitted after an operation starts execution */
+    'context-after-execute': [context: KafkaContext];
+    /* Emitted when an operation finishes successfully */
+    'context-finish': [context: KafkaContext];
   }
 }
