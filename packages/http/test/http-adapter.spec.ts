@@ -2,22 +2,24 @@ import { ApiDocument, HttpOperation } from '@opra/common';
 import {
   ExpressAdapter,
   HttpContext,
-  HttpIncoming,
-  HttpOutgoing,
+  HttpRequest,
+  HttpResponse,
+  ServerResponseHost,
 } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import { expect } from 'expect';
 import express, { type Express } from 'express';
 import supertest from 'supertest';
+import { IncomingMessageHost } from '../src/index.js';
 import { createTestApi } from './_support/test-api/index.js';
 
-describe('http:HttpHandler', () => {
+describe('http:HttpAdapter', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;
 
-  function createContext(operation: HttpOperation, request: HttpIncoming) {
-    const response = HttpOutgoing.from({ req: request });
+  function createContext(operation: HttpOperation, request: HttpRequest) {
+    const response = HttpResponse.create(ServerResponseHost.create(request));
     return new HttpContext({
       __adapter: adapter,
       __oprDef: operation,
@@ -42,12 +44,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        url: '/Customers?limit=5&xyz=1',
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          url: '/Customers?limit=5&xyz=1',
+        }),
+      ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.queryParams.limit).toEqual(5);
     expect(context.queryParams.xyz).not.toBeDefined();
   });
@@ -57,12 +61,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('sendMessage')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        url: '/Customers?message=abcd',
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          url: '/Customers?message=abcd',
+        }),
+      ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.queryParams.message).toEqual('abcd');
     expect(context.queryParams.all).toEqual(true);
   });
@@ -74,12 +80,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        params: { customerId: '123', addressId: '456' },
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          params: { customerId: '123', addressId: '456' },
+        }),
+      ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.pathParams.customerId).toEqual(123);
     expect(context.pathParams.addressId).toEqual(456);
   });
@@ -89,13 +97,15 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        params: { customerId: '123' },
-        cookies: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          params: { customerId: '123' },
+          cookies: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
+        }),
+      ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.cookies.accessToken).toEqual('gWEGnjkwegew');
     expect(context.cookies.cid).toEqual(123);
     expect(context.cookies.other).not.toBeDefined();
@@ -106,13 +116,15 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        headers: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          headers: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
+        }),
+      ),
     );
     context.request.params.customerId = 1;
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.headers.accessToken).toEqual('gWEGnjkwegew');
     expect(context.headers.cid).toEqual(123);
     expect(context.headers.other).not.toBeDefined();
@@ -123,12 +135,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        url: '/Customers?limit=abc',
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          url: '/Customers?limit=abc',
+        }),
+      ),
     );
-    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow(
+    await expect(() => adapter.parseRequest(context)).rejects.toThrow(
       'Invalid parameter',
     );
   });
@@ -138,12 +152,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        headers: { 'content-type': 'application/json; charset=UTF-8' },
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          headers: { 'content-type': 'application/json; charset=UTF-8' },
+        }),
+      ),
     );
-    await adapter.handler.parseRequest(context);
+    await adapter.parseRequest(context);
     expect(context.mediaType).toBeDefined();
     expect(context.mediaType?.contentType).toEqual('application/json');
     expect(context.mediaType?.contentEncoding).toEqual('UTF-8');
@@ -154,12 +170,14 @@ describe('http:HttpHandler', () => {
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,
-      HttpIncoming.from({
-        method: 'GET',
-        headers: { 'content-type': 'text/plain; charset=UTF-8' },
-      }),
+      HttpRequest.create(
+        IncomingMessageHost.create({
+          method: 'GET',
+          headers: { 'content-type': 'text/plain; charset=UTF-8' },
+        }),
+      ),
     );
-    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow(
+    await expect(() => adapter.parseRequest(context)).rejects.toThrow(
       'should be one of required content types',
     );
   });

@@ -9,10 +9,7 @@ import _prepareSort from './adapter-utils/prepare-sort.js';
 
 export namespace ElasticAdapter {
   export type FilterInput =
-    | OpraFilter.Expression
-    | estypes.QueryDslQueryContainer
-    | string
-    | undefined;
+    OpraFilter.Expression | estypes.QueryDslQueryContainer | string | undefined;
 
   export const prepareFilter = _prepareFilter;
   export const preparePatch = _preparePatch;

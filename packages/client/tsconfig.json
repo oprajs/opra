@@ -9,7 +9,5 @@
       "@opra/common": ["../common/src/index.js"]
     }
   },
-  "references": [
-    { "path": "../common" }
-  ]
+  "references": [{ "path": "../common" }]
 }

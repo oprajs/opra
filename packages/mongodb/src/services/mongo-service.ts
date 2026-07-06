@@ -11,7 +11,8 @@ import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { vg } from 'valgen';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 
-const transactionKey = Symbol.for('transaction');
+const dbInstanceKey = Symbol.for('db-instance');
+const dbSessionKey = Symbol.for('db-session');
 
 /**
  * The namespace for the MongoService, containing types and options.
@@ -406,21 +407,13 @@ export class MongoService<
     const ctx = this.context;
     let closeSessionOnFinish = false;
 
-    let transaction = ctx[transactionKey];
-    let session: mongodb.ClientSession;
-
-    if (transaction) {
-      session = transaction.session;
-    } else {
-      const db = this.getDatabase();
-      const client = (db as any).client as MongoClient;
+    const dbInstance = this.getDatabase();
+    let session = this.getSession();
+    if (!session) {
+      const client = (dbInstance as any).client as MongoClient;
       session = client.startSession();
+      ctx[dbSessionKey] = session;
       closeSessionOnFinish = true;
-      transaction = {
-        db,
-        session,
-      };
-      ctx[transactionKey] = transaction;
     }
 
     const oldInTransaction = session.inTransaction();
@@ -435,7 +428,8 @@ export class MongoService<
         await session.abortTransaction();
       throw e;
     } finally {
-      delete ctx[transactionKey];
+      delete ctx[dbInstanceKey];
+      delete ctx[dbSessionKey];
       if (closeSessionOnFinish) {
         await session.endSession();
       }
@@ -450,11 +444,28 @@ export class MongoService<
    */
   protected getDatabase(): mongodb.Db {
     const ctx = this.context;
-    const transaction = ctx[transactionKey];
-    if (transaction) return transaction.db;
-    const db = typeof this.db === 'function' ? this.db(this) : this.db;
-    if (db) return db;
+    let dbInstance: mongodb.Db | undefined =
+      ctx[dbInstanceKey] || ctx.bundle?.[dbInstanceKey];
+    if (dbInstance) return dbInstance;
+    dbInstance = typeof this.db === 'function' ? this.db(this) : this.db;
+    if (dbInstance) {
+      if (ctx.bundle?.transaction) {
+        ctx.bundle[dbInstanceKey] = dbInstance;
+      }
+      return dbInstance;
+    }
     throw new Error(`Database not set!`);
+  }
+
+  /**
+   * Retrieves the MongoClient.
+   *
+   * @protected
+   * @throws {@link Error} If the context or database is not set.
+   */
+  protected getDBClient(): MongoClient {
+    const dbInstance = this.getDatabase();
+    return (dbInstance as any).client as MongoClient;
   }
 
   /**
@@ -465,11 +476,32 @@ export class MongoService<
    */
   protected getSession(): mongodb.ClientSession | undefined {
     const ctx = this.context;
-    const transaction = ctx[transactionKey];
-    if (transaction) return transaction.session;
-    const session =
+    let session: mongodb.ClientSession | undefined =
+      ctx[dbSessionKey] || ctx.bundle?.[dbSessionKey];
+    if (session) return session;
+    session =
       typeof this.session === 'function' ? this.session(this) : this.session;
     if (session) return session;
+    if (ctx.bundle?.transaction) {
+      const dbInstance = this.getDatabase();
+      const client = (dbInstance as any).client as MongoClient;
+      session = client.startSession();
+      ctx.bundle[dbSessionKey] = session;
+      /* Commit or Rollback transaction after executed */
+      ctx.bundle!.on('after-execute', async () => {
+        try {
+          if (session!.inTransaction()) {
+            if (ctx.bundle!.success) await session!.commitTransaction();
+            else await session!.abortTransaction();
+          }
+        } finally {
+          delete ctx.bundle![dbInstanceKey];
+          delete ctx.bundle![dbSessionKey];
+          await session!.endSession();
+        }
+      });
+    }
+    return session;
   }
 
   /**

@@ -9,7 +9,7 @@ import {
   type OnModuleDestroy,
   RequestMethod,
 } from '@nestjs/common';
-import { APP_FILTER, ModuleRef } from '@nestjs/core';
+import { APP_FILTER, HttpAdapterHost, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { OPRA_HTTP_API_CONFIG } from './constants.js';
@@ -65,8 +65,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraHttpModule.ModuleOptions
-      | OpraHttpModule.AsyncModuleOptions,
+      OpraHttpModule.ModuleOptions | OpraHttpModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions?.token || OpraHttpNestjsAdapter;
     const opraNestAdapter = new OpraHttpNestjsAdapter({
@@ -76,9 +75,10 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
 
     const adapterProvider = {
       provide: token,
-      inject: [ModuleRef, OPRA_HTTP_API_CONFIG],
+      inject: [ModuleRef, HttpAdapterHost, OPRA_HTTP_API_CONFIG],
       useFactory: async (
         moduleRef: ModuleRef,
+        httpAdapterHost: HttpAdapterHost,
         apiConfig: OpraHttpModule.ApiConfig,
       ) => {
         opraNestAdapter.scope = apiConfig.scope;
@@ -109,6 +109,10 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
             return x;
           });
         }
+        opraNestAdapter.setHttpHandler((req, res) => {
+          const httpInstance = httpAdapterHost.httpAdapter?.getInstance();
+          if (httpInstance) httpInstance(req, res);
+        });
         return opraNestAdapter;
       },
     };

@@ -1,9 +1,11 @@
+import { Readable } from 'node:stream';
 import type { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import { Test } from '@nestjs/testing';
 import { expect } from 'expect';
 import { Server } from 'http';
+import MultipartStream from 'multipart-stream';
 import request from 'supertest';
 import { OpraHttpModule, OpraHttpNestjsAdapter } from '../src/index.js';
 import {
@@ -142,5 +144,78 @@ describe('nestjs-http:OpraModule - sync', () => {
     const r = await request(server).get('/api/v1/$schema');
     expect(r.status).toStrictEqual(200);
     expect(TestGlobalGuard.publicCounter).toEqual(publicCounter + 1);
+  });
+
+  it('Should POST:/$bundle send requests to controllers and return multipart response', async () => {
+    const makeRawRequest = (method: string, path: string): Readable =>
+      Readable.from([
+        Buffer.from(
+          `${method} ${path} HTTP/1.1\r\nHost: localhost\r\n\r\n`,
+          'utf-8',
+        ),
+      ]);
+
+    const requestStream = new MultipartStream();
+    requestStream.addPart({
+      headers: {
+        'Content-Disposition': 'form-data; name="req"; filename="request"',
+        'Content-Type': 'application/http',
+        'X-Request-Id': '1',
+      },
+      body: makeRawRequest('GET', '/api/v1/cats'),
+    });
+    requestStream.addPart({
+      headers: {
+        'Content-Disposition': 'form-data; name="req"; filename="request"',
+        'Content-Type': 'application/http',
+        'X-Request-Id': '2',
+      },
+      body: makeRawRequest('GET', '/api/v1/dogs'),
+    });
+
+    const chunks: Buffer[] = [];
+    for await (const chunk of requestStream) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as any));
+    }
+    const body = Buffer.concat(chunks);
+
+    const resp = await request(server)
+      .post('/api/v1/$bundle')
+      .set(
+        'Content-Type',
+        `multipart/mixed; boundary=${requestStream.boundary}`,
+      )
+      .parse((res, callback) => {
+        const _chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer | string) => {
+          _chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+        res.on('end', () => callback(null, Buffer.concat(_chunks)));
+      })
+      .send(body);
+
+    const responseText = Buffer.isBuffer(resp.body)
+      ? resp.body.toString('utf-8')
+      : '';
+
+    expect(resp.status).toStrictEqual(200);
+    expect(resp.headers['content-type']).toMatch(/multipart\/mixed/);
+
+    const responseBoundary =
+      resp.headers['content-type'].match(/boundary=([^\s;]+)/)?.[1];
+    expect(responseBoundary).toBeDefined();
+
+    const parts = responseText
+      .split(`--${responseBoundary}`)
+      .filter(p => p && p !== '--\r\n' && p.trim() !== '--');
+    expect(parts.length).toBe(2);
+
+    expect(parts[0]).toMatch(/Content-Type:\s*application\/http/i);
+    expect(parts[0]).toMatch(/X-Request-Id:\s*1/i);
+    expect(parts[0]).toMatch(/HTTP\/1\.1\s+\d{3}/);
+
+    expect(parts[1]).toMatch(/Content-Type:\s*application\/http/i);
+    expect(parts[1]).toMatch(/X-Request-Id:\s*2/i);
+    expect(parts[1]).toMatch(/HTTP\/1\.1\s+\d{3}/);
   });
 });

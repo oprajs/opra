@@ -1,6 +1,5 @@
 import { MQController, MQOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import type { AsyncEventEmitter } from 'node-events-async';
 import * as rabbit from 'rabbitmq-client';
 import type { RabbitmqAdapter } from './rabbitmq-adapter.js';
 
@@ -8,10 +7,7 @@ import type { RabbitmqAdapter } from './rabbitmq-adapter.js';
  * RabbitmqContext class provides the context for handling RabbitMQ messages.
  * It extends the ExecutionContext and implements the AsyncEventEmitter.
  */
-export class RabbitmqContext
-  extends ExecutionContext
-  implements AsyncEventEmitter
-{
+export class RabbitmqContext extends ExecutionContext<RabbitmqContext.Events> {
   declare readonly __contDef: MQController;
   declare readonly __oprDef: MQOperation;
   declare readonly __controller: any;
@@ -68,5 +64,12 @@ export namespace RabbitmqContext {
     queue: string;
     message: rabbit.AsyncMessage;
     reply: RabbitmqAdapter.ReplyFunction;
+  }
+
+  export interface Events {
+    'before-execute': [_this: RabbitmqContext];
+    'after-execute': [responseValue: any, _this: RabbitmqContext];
+    error: [Error, _this: RabbitmqContext];
+    finish: [_this: RabbitmqContext];
   }
 }

@@ -1,16 +1,12 @@
 import { MQController, MQOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import type { AsyncEventEmitter } from 'node-events-async';
 import type { KafkaAdapter } from './kafka-adapter.js';
 
 /**
  * KafkaContext class provides the context for handling Kafka messages.
  * It extends the ExecutionContext and implements the AsyncEventEmitter.
  */
-export class KafkaContext
-  extends ExecutionContext
-  implements AsyncEventEmitter
-{
+export class KafkaContext extends ExecutionContext<KafkaContext.Events> {
   declare readonly __contDef: MQController;
   declare readonly __oprDef: MQOperation;
   declare readonly __controller: any;
@@ -68,5 +64,12 @@ export namespace KafkaContext {
     headers: Record<string, any>;
     rawMessage: KafkaAdapter.Message;
     commit(): void | Promise<void>;
+  }
+
+  export interface Events {
+    'before-execute': [_this: KafkaContext];
+    'after-execute': [_this: KafkaContext];
+    error: [Error, _this: KafkaContext];
+    finish: [_this: KafkaContext];
   }
 }

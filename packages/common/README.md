@@ -69,11 +69,11 @@ import { HttpController, HttpOperation } from '@opra/common';
 @HttpController({ path: 'users' })
 export class UsersController {
   @HttpOperation.Entity.FindMany({ type: User })
-  async findMany() { }
+  async findMany() {}
 
   @HttpOperation.Entity.GetOne({ type: User })
   @HttpOperation.PathParam('id', 'integer')
-  async getOne(id: number) { }
+  async getOne(id: number) {}
 }
 ```
 

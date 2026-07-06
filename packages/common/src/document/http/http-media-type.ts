@@ -76,11 +76,10 @@ export const HttpMediaType = function (
   _this.contentEncoding = initArgs.contentEncoding;
   _this.examples = initArgs.examples;
   _this.multipartFields = [];
-  _this.maxFieldsSize = initArgs.maxFieldsSize;
-  _this.maxFields = initArgs.maxFields;
-  _this.maxFiles = initArgs.maxFiles;
-  _this.maxFileSize = initArgs.maxFileSize;
-  _this.maxTotalFileSize = initArgs.maxTotalFileSize;
+  _this.maxParts = initArgs.maxParts;
+  _this.maxPartSize = initArgs.maxPartSize;
+  _this.maxFieldSize = initArgs.maxFieldSize;
+  _this.maxTotalSize = initArgs.maxTotalSize;
   if (initArgs?.type) {
     _this.type =
       initArgs?.type instanceof DataType
@@ -104,11 +103,10 @@ class HttpMediaTypeClass extends DocumentElement {
   declare example?: string;
   declare examples?: Record<string, string>;
   declare multipartFields: HttpMultipartField[];
-  declare maxFields?: number;
-  declare maxFieldsSize?: number;
-  declare maxFiles?: number;
-  declare maxFileSize?: number;
-  declare maxTotalFileSize?: number;
+  declare maxParts?: number;
+  declare maxPartSize?: number;
+  declare maxFieldSize?: number;
+  declare maxTotalSize?: number;
   declare designType?: Type;
 
   findMultipartField(
@@ -139,11 +137,10 @@ class HttpMediaTypeClass extends DocumentElement {
       isArray: this.isArray,
       example: this.example,
       examples: this.examples,
-      maxFields: this.maxFields,
-      maxFieldsSize: this.maxFieldsSize,
-      maxFiles: this.maxFiles,
-      maxFileSize: this.maxFileSize,
-      maxTotalFileSize: this.maxTotalFileSize,
+      maxParts: this.maxParts,
+      maxPartSize: this.maxPartSize,
+      maxFieldSize: this.maxFieldSize,
+      maxTotalSize: this.maxTotalSize,
     });
     if (this.multipartFields?.length) {
       out.multipartFields = this.multipartFields.map(x => x.toJSON(options));

@@ -13,9 +13,10 @@ import toml from 'toml';
 import { type Validator } from 'valgen';
 import yaml from 'yaml';
 import type { HttpAdapter } from './http-adapter.js';
+import type { HttpBundle } from './http-bundle.js';
 import { MultipartReader } from './impl/multipart-reader.js';
-import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
-import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
+import type { HttpRequest } from './interfaces/http-request.interface.js';
+import type { HttpResponse } from './interfaces/http-response.interface.js';
 
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
@@ -25,8 +26,9 @@ export class HttpContext extends ExecutionContext {
   declare readonly __controller: any;
   declare readonly __handler?: Function;
   declare readonly __adapter: HttpAdapter;
-  readonly request: HttpIncoming;
-  readonly response: HttpOutgoing;
+  readonly request: HttpRequest;
+  readonly response: HttpResponse;
+  declare readonly bundle?: HttpBundle;
   readonly mediaType?: HttpMediaType;
   readonly cookies: Record<string, any>;
   readonly headers: Record<string, any>;
@@ -47,6 +49,7 @@ export class HttpContext extends ExecutionContext {
     if (init.__contDef) this.__contDef = Object.create(init.__contDef);
     if (init.__oprDef) this.__oprDef = Object.create(init.__oprDef);
     if (init.__handler) this.__handler = init.__handler;
+    if (init.bundle) this.bundle = init.bundle;
     this.request = init.request;
     this.response = init.response;
     this.mediaType = init.mediaType;
@@ -93,14 +96,12 @@ export class HttpContext extends ExecutionContext {
         );
     }
     const reader = new MultipartReader(
-      this,
+      this.request,
       {
-        limits: {
-          fields: mediaType?.maxFields,
-          fieldSize: mediaType?.maxFieldsSize,
-          files: mediaType?.maxFiles,
-          fileSize: mediaType?.maxFileSize,
-        },
+        maxParts: mediaType?.maxParts,
+        maxPartSize: mediaType?.maxPartSize,
+        maxFieldSize: mediaType?.maxFieldSize,
+        maxTotalSize: mediaType?.maxTotalSize,
       },
       mediaType,
     );
@@ -209,13 +210,21 @@ export namespace HttpContext {
     __oprDef?: HttpOperation;
     __controller?: any;
     __handler?: Function;
-    request: HttpIncoming;
-    response: HttpOutgoing;
+    bundle?: HttpBundle;
+    request: HttpRequest;
+    response: HttpResponse;
     cookies?: Record<string, any>;
     headers?: Record<string, any>;
     pathParams?: Record<string, any>;
     queryParams?: Record<string, any>;
     mediaType?: HttpMediaType;
     body?: any;
+  }
+
+  export interface Events {
+    'before-execute': [_this: HttpContext];
+    'after-execute': [responseValue: any, _this: HttpContext];
+    error: [Error, _this: HttpContext];
+    finish: [_this: HttpContext];
   }
 }

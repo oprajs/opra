@@ -1,8 +1,7 @@
-import { isReadable, isStream } from '@opra/common';
-import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
-import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
-import type { NodeIncomingMessage } from './interfaces/node-incoming-message.interface.js';
-import type { NodeOutgoingMessage } from './interfaces/node-outgoing-message.interface.js';
+import { isStream } from '@opra/common';
+import http from 'http';
+import type { HttpRequest } from './interfaces/http-request.interface.js';
+import type { HttpResponse } from './interfaces/http-response.interface.js';
 
 /**
  * Checks if the given value is a NodeIncomingMessage.
@@ -10,24 +9,19 @@ import type { NodeOutgoingMessage } from './interfaces/node-outgoing-message.int
  * @param v - The value to check.
  * @returns True if the value is a NodeIncomingMessage, false otherwise.
  */
-export function isNodeIncomingMessage(v: any): v is NodeIncomingMessage {
-  return (
-    v &&
-    typeof v.method === 'string' &&
-    Array.isArray(v.rawHeaders) &&
-    isReadable(v)
-  );
+export function isHttpIncomingMessage(v: any): v is http.IncomingMessage {
+  return v instanceof http.IncomingMessage;
 }
 
 /**
- * Checks if the given value is an HttpIncoming instance.
+ * Checks if the given value is an HttpRequest instance.
  *
  * @param v - The value to check.
- * @returns True if the value is an HttpIncoming instance, false otherwise.
+ * @returns True if the value is an HttpRequest instance, false otherwise.
  */
-export function isHttpIncoming(v: any): v is HttpIncoming {
+export function isHttpRequest(v: any): v is HttpRequest {
   return (
-    (isNodeIncomingMessage(v) as any) &&
+    (isHttpIncomingMessage(v) as any) &&
     typeof v.header === 'function' &&
     typeof v.acceptsLanguages === 'function' &&
     typeof v.readBody === 'function'
@@ -40,7 +34,7 @@ export function isHttpIncoming(v: any): v is HttpIncoming {
  * @param v - The value to check.
  * @returns True if the value is a NodeOutgoingMessage, false otherwise.
  */
-export function isNodeOutgoingMessage(v: any): v is NodeOutgoingMessage {
+export function isHttpOutgoingMessage(v: any): v is http.OutgoingMessage {
   return v && typeof v.getHeaders === 'function' && isStream(v);
 }
 
@@ -50,9 +44,9 @@ export function isNodeOutgoingMessage(v: any): v is NodeOutgoingMessage {
  * @param v - The value to check.
  * @returns True if the value is an HttpOutgoing instance, false otherwise.
  */
-export function isHttpOutgoing(v: any): v is HttpOutgoing {
+export function isHttpResponse(v: any): v is HttpResponse {
   return (
-    (isNodeOutgoingMessage(v) as any) &&
+    (isHttpOutgoingMessage(v) as any) &&
     typeof v.clearCookie === 'function' &&
     typeof v.cookie === 'function'
   );

@@ -23,11 +23,7 @@ export namespace ComplexType {
       kind: OpraSchema.ComplexType.Kind;
       fields?: Record<string, ApiField.Metadata>;
       additionalFields?:
-        | boolean
-        | string
-        | TypeThunkAsync
-        | ['error']
-        | ['error', string];
+        boolean | string | TypeThunkAsync | ['error'] | ['error', string];
     },
     DataType.Metadata,
     OpraSchema.ComplexType

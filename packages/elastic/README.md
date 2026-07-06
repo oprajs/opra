@@ -49,7 +49,9 @@ export class ProductsController extends ElasticCollectionService<Product> {
   }
 
   @HttpOperation.Entity.FindMany({ type: Product })
-  findMany() { return super.findMany(); }
+  findMany() {
+    return super.findMany();
+  }
 }
 ```
 

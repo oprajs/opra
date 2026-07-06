@@ -77,8 +77,7 @@ export class OpraSocketioCoreModule
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraSocketioModule.ModuleOptions
-      | OpraSocketioModule.AsyncModuleOptions,
+      OpraSocketioModule.ModuleOptions | OpraSocketioModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions.token || SocketioAdapter;
     const adapterProvider = {

@@ -1,9 +1,9 @@
 export namespace IssueSeverity {
   export enum Enum {
-    'fatal' = 'fatal',
-    'error' = 'error',
-    'warning' = 'warning',
-    'info' = 'info',
+    fatal = 'fatal',
+    error = 'error',
+    warning = 'warning',
+    info = 'info',
   }
 
   export const name = 'IssueSeverity';

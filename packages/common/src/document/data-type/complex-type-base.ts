@@ -71,10 +71,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   readonly ctor?: Type;
   declare protected _fields: ResponsiveMap<ApiField>;
   readonly additionalFields?:
-    | boolean
-    | DataType
-    | ['error']
-    | ['error', string];
+    boolean | DataType | ['error'] | ['error', string];
   readonly keyField?: OpraSchema.Field.Name;
 
   fieldCount(scope?: string): number {

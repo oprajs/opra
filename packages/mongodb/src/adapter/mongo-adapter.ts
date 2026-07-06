@@ -21,10 +21,7 @@ export namespace MongoAdapter {
    * a MongoDB filter object, a string, or undefined.
    */
   export type FilterInput<T = any> =
-    | OpraFilter.Expression
-    | mongodb.Filter<T>
-    | string
-    | undefined;
+    OpraFilter.Expression | mongodb.Filter<T> | string | undefined;
 
   /**
    * Prepares the given filter input into a MongoDB filter expression.

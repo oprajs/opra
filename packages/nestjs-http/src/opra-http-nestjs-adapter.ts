@@ -1,3 +1,5 @@
+import * as http from 'node:http';
+import { type IncomingMessage, type ServerResponse } from 'node:http';
 import nodePath from 'node:path';
 import { isConstructor } from '@jsopen/objects';
 import {
@@ -5,6 +7,7 @@ import {
   Delete,
   Get,
   Head,
+  HttpCode,
   Next,
   Options,
   Patch,
@@ -19,9 +22,16 @@ import {
   HTTP_CONTROLLER_METADATA,
   HttpApi,
   HttpController,
+  HttpOperation,
   NotFoundError,
 } from '@opra/common';
-import { HttpAdapter, HttpContext } from '@opra/http';
+import {
+  HttpAdapter,
+  HttpBundle,
+  HttpContext,
+  HttpRequest,
+  HttpResponse,
+} from '@opra/http';
 import { OpraNestUtils, Public } from '@opra/nestjs';
 import { asMutable } from 'ts-gems';
 
@@ -68,6 +78,45 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     //
   }
 
+  async createContext(
+    _req: any,
+    _res: any,
+    args?: {
+      controller?: HttpController;
+      controllerInstance?: any;
+      operation?: HttpOperation;
+      operationHandler: Function;
+    },
+  ): Promise<HttpContext> {
+    const ctx = await super.createContext(_req, _res, args);
+    // @ts-ignore
+    ctx.platform = _req.route ? 'express' : 'fastify';
+    return ctx;
+  }
+
+  protected _httpHandler?: (req: IncomingMessage, res: ServerResponse) => void;
+
+  setHttpHandler(
+    handler: (req: IncomingMessage, res: ServerResponse) => void,
+  ): void {
+    this._httpHandler = handler;
+  }
+
+  async handleRawRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ): Promise<void> {
+    if (!this._httpHandler)
+      throw new Error(
+        'HTTP handler is not initialized. Call setHttpHandler() first.',
+      );
+    return new Promise<void>((resolve, reject) => {
+      res.once('finish', resolve);
+      res.once('error', reject);
+      this._httpHandler!(req, res);
+    });
+  }
+
   /**
    * Adds the root controller that serves the OPRA schema.
    *
@@ -83,7 +132,23 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     class RootController {
       @Get('/\\$schema')
       schema(@Req() _req: any, @Next() next: Function) {
-        _this.handler.sendDocumentSchema(_req.opraContext).catch(() => next());
+        _this.sendDocumentSchema(_req.opraContext).catch(() => next());
+      }
+      @Post('/\\$bundle')
+      @HttpCode(200)
+      bundle(@Req() _req: any, @Res() _res, @Next() next: Function) {
+        Promise.resolve()
+          .then(async () => {
+            const bundle = new HttpBundle({
+              __adapter: _this,
+              platform: _req.route ? 'express' : 'fastify',
+              request: HttpRequest.create(_req),
+              response: HttpResponse.create(_res),
+            });
+            await _this.emitAsync('create-bundle', bundle);
+            await _this.handleBundle(bundle);
+          })
+          .catch(() => next());
       }
     }
 
@@ -132,9 +197,9 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     const adapter = this;
     // adapter.logger =
     /* Disable default error handler. Errors will be handled by OpraExceptionFilter */
-    adapter.handler.onError = (context, error) => {
+    adapter.on('error', (error: Error) => {
       throw error;
-    };
+    });
 
     this.nestControllers.push(newClass);
     let metadataKeys: any[];
@@ -150,9 +215,11 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
             const controller = api.findController(sourceClass);
             const operation = controller?.operations.get(k);
             const context = asMutable<HttpContext>(_req.opraContext);
-            if (
-              !(context && operation && typeof operationHandler === 'function')
-            ) {
+            if (!(
+              context &&
+              operation &&
+              typeof operationHandler === 'function'
+            )) {
               throw new NotFoundError({
                 message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
                 details: {
@@ -168,7 +235,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
             context.__controller = this;
             context.__handler = operationHandler;
             /* Handle request */
-            await adapter.handler.handleRequest(context);
+            await adapter.handleRequest(context);
           },
         });
 

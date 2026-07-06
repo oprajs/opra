@@ -44,13 +44,11 @@ export function createMappedClass(
       throw new TypeError(
         `Class "${source}" doesn't have datatype metadata information`,
       );
-    if (
-      !(
-        m.kind === OpraSchema.ComplexType.Kind ||
-        m.kind === OpraSchema.MappedType.Kind ||
-        m.kind === OpraSchema.MixinType.Kind
-      )
-    ) {
+    if (!(
+      m.kind === OpraSchema.ComplexType.Kind ||
+      m.kind === OpraSchema.MappedType.Kind ||
+      m.kind === OpraSchema.MixinType.Kind
+    )) {
       throw new TypeError(
         `Class "${source}" is not a ${OpraSchema.ComplexType.Kind}`,
       );

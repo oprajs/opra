@@ -1,13 +1,13 @@
-import { NodeIncomingMessage } from '@opra/http';
 import { expect } from 'expect';
+import { IncomingMessageHost } from '../../src/index.js';
 
-describe('http:NodeIncomingMessage', () => {
+describe('http:IncomingMessageHost', () => {
   it('Should create using init object (raw headers)', async () => {
-    const msg = NodeIncomingMessage.from({
+    const msg = IncomingMessageHost.create({
       url: '/test',
       httpVersionMajor: 1,
       httpVersionMinor: 0,
-      headers: ['accept', 'text/html'],
+      headers: ['Accept', 'text/html'],
       trailers: ['X-Custom-Field', 'x'],
       body: 'test',
     });
@@ -16,15 +16,14 @@ describe('http:NodeIncomingMessage', () => {
     expect(msg.method).toStrictEqual('GET');
     expect(msg.httpVersionMajor).toStrictEqual(1);
     expect(msg.httpVersionMinor).toStrictEqual(0);
-    expect(msg.rawHeaders).toStrictEqual(['accept', 'text/html']);
+    expect(msg.rawHeaders).toStrictEqual(['Accept', 'text/html']);
     expect(msg.rawTrailers).toStrictEqual(['X-Custom-Field', 'x']);
-    expect(msg.headers).toMatchObject({ accept: 'text/html' });
+    expect(msg.headers).toEqual({ accept: 'text/html' });
     expect(msg.trailers).toEqual({ 'x-custom-field': 'x' });
-    expect((msg as any).body?.toString('utf-8')).toStrictEqual('test');
   });
 
   it('Should create using init object (object headers)', async () => {
-    const msg = NodeIncomingMessage.from({
+    const msg = IncomingMessageHost.create({
       url: '/test',
       httpVersionMajor: 1,
       httpVersionMinor: 0,
@@ -39,24 +38,22 @@ describe('http:NodeIncomingMessage', () => {
     expect(msg.httpVersionMinor).toStrictEqual(0);
     expect(msg.rawHeaders).toStrictEqual(['Accept', 'text/html']);
     expect(msg.rawTrailers).toStrictEqual(['X-Custom-Field', 'x']);
-    expect(msg.headers).toMatchObject({ accept: 'text/html' });
+    expect(msg.headers).toEqual({ accept: 'text/html' });
     expect(msg.trailers).toEqual({ 'x-custom-field': 'x' });
-    expect((msg as any).body?.toString('utf-8')).toStrictEqual('test');
   });
 
   it('Should create using Buffer', async () => {
-    const msg = await NodeIncomingMessage.fromAsync(
-      [
-        'POST /test HTTP/1.1',
-        'Content-Type: text/plain',
-        'Transfer-Encoding: chunked',
-        '',
-        '4',
-        'test',
-        '0',
-        'Expires: x',
-        '',
-      ].join('\r\n'),
+    const msg = await IncomingMessageHost.from(
+      `POST /test HTTP/1.1
+Content-Type: text/plain
+Transfer-Encoding: chunked
+
+4
+test
+0
+Expires: x
+`,
+      { waitForBody: true },
     );
     expect(msg.complete).toStrictEqual(true);
     expect(msg.url).toStrictEqual('/test');

@@ -65,7 +65,7 @@ OpraHttpModule.forRootAsync({
     controllers: [UsersController],
   }),
   inject: [ConfigService],
-})
+});
 ```
 
 ## Node Compatibility

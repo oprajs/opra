@@ -15,6 +15,7 @@ export enum MimeTypes {
   html = 'text/html',
   markdown = 'text/markdown',
   binary = 'binary/octet-stream',
+  multipart_mixed = 'multipart/mixed',
   opra_response_json = 'application/opra.response+json',
   opra_response_xml = 'application/opra.response+xml',
   opra_response_yaml = 'text/opra.response+yaml',

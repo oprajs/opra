@@ -6,8 +6,9 @@ import {
   type URLSearchParamsInit,
 } from '@opra/common';
 import type { StrictOmit } from 'ts-gems';
-import { kBackend } from '../constants.js';
+import { kBackend } from './constants.js';
 import { HttpBackend } from './http-backend.js';
+import { HttpBundleObservable } from './http-bundle-observable.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
 const SPLIT_BACKSLASH_PATTERN = /^(\/*)(.+)/;
@@ -224,6 +225,29 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
       ...options,
       method: 'PUT',
       body: requestBody,
+    });
+  }
+
+  /**
+   * Bundles multiple requests into a single multipart HTTP request and
+   * distributes the parsed sub-responses back to callers.
+   *
+   * @param requests The list of requests to bundle.
+   * @returns A {@link HttpBundleObservable} that emits an ordered array of {@link HttpResponse}.
+   */
+  bundle(requests: HttpRequestObservable<any>[]): HttpBundleObservable {
+    return new HttpBundleObservable(this[kBackend], requests);
+  }
+
+  /**
+   * Executes a transaction composed of multiple HTTP requests.
+   *
+   * @param {HttpRequestObservable<any>[]} requests - An array of HTTP request observables that are part of the transaction.
+   * @return {HttpBundleObservable} A new observable that represents the bundled transaction.
+   */
+  transaction(requests: HttpRequestObservable<any>[]): HttpBundleObservable {
+    return new HttpBundleObservable(this[kBackend], requests).param({
+      transaction: true,
     });
   }
 }

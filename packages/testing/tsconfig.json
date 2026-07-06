@@ -7,11 +7,8 @@
     "outDir": "./build",
     "paths": {
       "@opra/common": ["../common/src/index.js"],
-      "@opra/client": ["../client/src/index.js"],
+      "@opra/client": ["../client/src/index.js"]
     }
   },
-  "references": [
-    { "path": "../common" },
-    { "path": "../client" },
-  ]
+  "references": [{ "path": "../common" }, { "path": "../client" }]
 }

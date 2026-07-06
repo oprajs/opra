@@ -36,10 +36,7 @@ export namespace DataTypeFactory {
     | Record<string, OpraSchema.DataType>;
 
   export type DataTypeThunk =
-    | Type
-    | EnumType.EnumObject
-    | EnumType.EnumArray
-    | object;
+    Type | EnumType.EnumObject | EnumType.EnumArray | object;
 
   export interface ArrayTypeInit extends Combine<
     {

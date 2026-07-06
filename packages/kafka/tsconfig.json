@@ -10,8 +10,5 @@
       "@opra/core": ["../core/src/index.js"]
     }
   },
-  "references": [
-    { "path": "../common" },
-    { "path": "../core" }
-  ]
+  "references": [{ "path": "../common" }, { "path": "../core" }]
 }

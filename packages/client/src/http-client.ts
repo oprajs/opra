@@ -1,4 +1,4 @@
-import { kBackend } from '../constants.js';
+import { kBackend } from './constants.js';
 import { FetchBackend } from './fetch-backend.js';
 import { HttpClientBase } from './http-client-base.js';
 

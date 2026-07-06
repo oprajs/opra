@@ -47,18 +47,11 @@ describe('UsersController', () => {
   });
 
   it('should return users', async () => {
-    await client
-      .get('/users')
-      .expect(200)
-      .toSuccess()
-      .toMatchSchema(User);
+    await client.get('/users').expect(200).toSuccess().toMatchSchema(User);
   });
 
   it('should return 404 for unknown user', async () => {
-    await client
-      .get('/users/999')
-      .expect(404)
-      .toError('NotFound');
+    await client.get('/users/999').expect(404).toError('NotFound');
   });
 });
 ```

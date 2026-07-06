@@ -3,7 +3,6 @@ import {
   ApiDocument,
   HttpApi,
   HttpController,
-  HttpOperation,
   NotFoundError,
 } from '@opra/common';
 import {
@@ -13,10 +12,11 @@ import {
   type Response,
   Router,
 } from 'express';
+import http from 'http';
 import { HttpAdapter } from './http-adapter.js';
-import { HttpContext } from './http-context.js';
-import { HttpIncoming } from './interfaces/http-incoming.interface.js';
-import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
+import { HttpBundle } from './http-bundle.js';
+import { HttpRequest } from './interfaces/http-request.interface.js';
+import { HttpResponse } from './interfaces/http-response.interface.js';
 
 /**
  * ExpressAdapter is a platform adapter for the Express.js framework.
@@ -78,36 +78,26 @@ export class ExpressAdapter extends HttpAdapter {
     const router = Router();
     this.app.use(this.basePath, router);
 
-    const createContext = async (
-      _req: Request,
-      _res: Response,
-      args?: {
-        controller?: HttpController;
-        controllerInstance?: any;
-        operation?: HttpOperation;
-        operationHandler: Function;
-      },
-    ): Promise<HttpContext> => {
-      const request = HttpIncoming.from(_req);
-      const response = HttpOutgoing.from(_res);
-      const ctx = new HttpContext({
-        __adapter: this,
-        platform: this.platform,
-        request,
-        response,
-        __contDef: args?.controller,
-        __controller: args?.controllerInstance,
-        __oprDef: args?.operation,
-        __handler: args?.operationHandler,
-      });
-      await this.emitAsync('createContext', ctx);
-      return ctx;
-    };
-
     /* Add an endpoint that returns document schema */
     router.get('/\\$schema', (_req, _res, next) => {
-      createContext(_req, _res)
-        .then(ctx => this.handler.sendDocumentSchema(ctx).catch(next))
+      this.createContext(_req, _res)
+        .then(ctx => this.sendDocumentSchema(ctx).catch(next))
+        .catch(next);
+    });
+
+    /* Add an endpoint that returns document schema */
+    router.post('/\\$bundle', (_req, _res, next) => {
+      Promise.resolve()
+        .then(async () => {
+          const bundle = new HttpBundle({
+            __adapter: this,
+            platform: _req.route ? 'express' : 'fastify',
+            request: HttpRequest.create(_req),
+            response: HttpResponse.create(_res),
+          });
+          await this.emitAsync('create-bundle', bundle);
+          await this.handleBundle(bundle);
+        })
         .catch(next);
     });
 
@@ -127,13 +117,13 @@ export class ExpressAdapter extends HttpAdapter {
           router[operation.method.toLowerCase()](
             routePath,
             (_req: Request, _res: Response, _next: NextFunction) => {
-              createContext(_req, _res, {
+              this.createContext(_req, _res, {
                 controller,
                 controllerInstance,
                 operation,
                 operationHandler,
               })
-                .then(ctx => this.handler.handleRequest(ctx))
+                .then(ctx => this.handleRequest(ctx))
                 .then(() => {
                   if (!_res.headersSent) _next();
                 })
@@ -153,7 +143,7 @@ export class ExpressAdapter extends HttpAdapter {
     router.use(
       '/{*splat}',
       (_req: Request, _res: Response, next: NextFunction) => {
-        createContext(_req, _res)
+        this.createContext(_req, _res)
           .then(ctx => {
             ctx.errors.push(
               new NotFoundError({
@@ -164,7 +154,7 @@ export class ExpressAdapter extends HttpAdapter {
                 },
               }),
             );
-            this.handler.sendResponse(ctx).catch(next);
+            this.sendResponse(ctx).catch(next);
           })
           .catch(next);
       },
@@ -182,5 +172,16 @@ export class ExpressAdapter extends HttpAdapter {
       }
     }
     return instance;
+  }
+
+  handleRawRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      res.once('finish', resolve);
+      res.once('error', reject);
+      this.app(req, res);
+    });
   }
 }
