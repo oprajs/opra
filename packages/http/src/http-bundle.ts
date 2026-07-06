@@ -31,6 +31,8 @@ export class HttpBundle extends ExecutionBundle {
       if (this._multipartReader)
         this._multipartReader.purge().catch(() => undefined);
     });
+    // @ts-ignore
+    this.transaction = this.queryParams.transaction === 'true';
   }
 
   get size(): number {
