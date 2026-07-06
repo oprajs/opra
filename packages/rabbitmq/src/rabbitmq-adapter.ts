@@ -283,15 +283,21 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         this._emitError(e, context);
         return;
       }
+      await this.emitAsync('create-context', context);
 
-      await this.emitAsync('execute', context).catch(noOp);
       try {
+        await context.emitAsync('before-execute', context);
+        await this.emitAsync('context-before-execute', context);
         /* Call operation handler */
         const result = await operationHandler.call(instance, context);
+        await context.emitAsyncSafe('after-execute', result, context);
+        await this.emitAsyncSafe('context-after-execute', result, context);
         if (result !== undefined) await reply(result);
-        await this.emitAsync('finish', context, result).catch(noOp);
       } catch (e: any) {
         this._emitError(e, context);
+      } finally {
+        await context.emitAsyncSafe('finish', context);
+        await this.emitAsyncSafe('context-finish', context);
       }
     };
   }
@@ -458,8 +464,12 @@ export namespace RabbitmqAdapter {
 
   export interface Events {
     error: [error: Error, context: RabbitmqContext | undefined];
-    execute: [context: RabbitmqContext];
-    finish: [context: RabbitmqContext, result: any];
     message: [message: rabbit.AsyncMessage, queue: string];
+    /* Emitted before an operation starts execution */
+    'context-before-execute': [context: RabbitmqContext];
+    /* Emitted after an operation starts execution */
+    'context-after-execute': [context: RabbitmqContext];
+    /* Emitted when an operation finishes successfully */
+    'context-finish': [responseValue: any, context: RabbitmqContext];
   }
 }

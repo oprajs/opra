@@ -10,11 +10,11 @@ export async function waitForMessage(
   return new Promise((resolve, reject) => {
     const waitKey = oprname + ':' + key;
     waitList.add(waitKey);
-    const onMessage = async (_ctx: RabbitmqContext) => {
+    const onFinish = async (_ctx: RabbitmqContext) => {
       if (_ctx.__oprDef?.name === oprname) {
         if (_ctx.message.messageId === key) {
           adapter.removeListener('error', onError);
-          adapter.removeListener('finish', onMessage);
+          adapter.removeListener('context-finish', onFinish);
           waitList.delete(waitKey);
           resolve(_ctx);
         } else {
@@ -34,10 +34,10 @@ export async function waitForMessage(
     };
     const onError = (e: any) => {
       waitList.delete(waitKey);
-      adapter.removeListener('finish', onMessage);
+      adapter.removeListener('context-finish', onFinish);
       reject(e);
     };
-    adapter.on('finish', onMessage);
+    adapter.on('context-finish', onFinish);
     adapter.once('error', onError);
   });
 }
