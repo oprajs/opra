@@ -174,6 +174,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
           ? args[args.length - 1]
           : null;
       Promise.resolve().then(async () => {
+        let context: SocketioContext | undefined;
         try {
           const reg =
             this._eventsRegByName.get(event) ||
@@ -182,7 +183,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             throw new OpraException(`Unknown event "${event}"`);
           }
           const inputParameters = callback ? args.slice(0, -1) : args;
-          const ctx = new SocketioContext({
+          context = new SocketioContext({
             __adapter: this,
             __contDef: reg.contDef,
             __oprDef: reg.oprDef,
@@ -191,13 +192,13 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             socket,
             event,
           });
-          const callArgs: any[] = [ctx];
+          const callArgs: any[] = [context];
           let i = 0;
           for (const prm of inputParameters) {
             try {
               const v = reg.decoders[i](prm);
               const arg = reg.oprDef.arguments[i];
-              ctx.parameters.push(v);
+              context.parameters.push(v);
               if (arg.parameterIndex != null) callArgs[arg.parameterIndex] = v;
               else callArgs.push(v);
             } catch (err: any) {
@@ -209,7 +210,15 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             }
             i++;
           }
+          await this.emitAsync('create-context', context);
+
+          await context.emitAsync('before-execute', context);
+          await this.emitAsync('context-before-execute', context);
+
           const resp = await reg.handler.apply(reg.contDef.instance, callArgs);
+          await context.emitAsyncSafe('after-execute', resp, context);
+          await this.emitAsyncSafe('context-after-execute', resp, context);
+
           if (callback) {
             let out: any;
             if (reg.encoder) out = reg.encoder(resp);
@@ -227,6 +236,11 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
               errors: [error],
             });
             callback(out);
+          }
+        } finally {
+          if (context) {
+            await context.emitAsyncSafe('finish', context);
+            await this.emitAsyncSafe('context-finish', context);
           }
         }
       });
@@ -298,7 +312,12 @@ export namespace SocketioAdapter {
     /** Emitted when a socket connection is closed. */
     close: [socket: socketio.Socket, _this: SocketioAdapter];
     /** Emitted when an operation is executed. */
-    execute: [context: SocketioContext];
+    /* Emitted before an operation starts execution */
+    'context-before-execute': [context: SocketioContext];
+    /* Emitted after an operation starts execution */
+    'context-after-execute': [context: SocketioContext];
+    /* Emitted when an operation finishes successfully */
+    'context-finish': [responseValue: any, context: SocketioContext];
   }
 }
 

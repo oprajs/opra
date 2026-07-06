@@ -1,6 +1,5 @@
 import { WSController, WSOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import type { AsyncEventEmitter } from 'node-events-async';
 import * as socketio from 'socket.io';
 import type { SocketioAdapter } from './socketio-adapter.js';
 
@@ -8,10 +7,7 @@ import type { SocketioAdapter } from './socketio-adapter.js';
  * Provides the context for handling messages.
  * It extends the ExecutionContext and implements the AsyncEventEmitter.
  */
-export class SocketioContext
-  extends ExecutionContext
-  implements AsyncEventEmitter
-{
+export class SocketioContext extends ExecutionContext<SocketioContext.Events> {
   declare readonly __contDef: WSController;
   declare readonly __oprDef: WSOperation;
   declare readonly __controller: any;
@@ -72,5 +68,12 @@ export namespace SocketioContext {
     socket: socketio.Socket;
     event: string;
     parameters?: any[];
+  }
+
+  export interface Events {
+    'before-execute': [_this: SocketioContext];
+    'after-execute': [responseValue: any, _this: SocketioContext];
+    error: [Error, _this: SocketioContext];
+    finish: [_this: SocketioContext];
   }
 }
