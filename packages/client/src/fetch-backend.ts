@@ -240,7 +240,7 @@ export class FetchBackend extends HttpBackend {
       if (typeof body === 'string') body = JSON.parse(body);
     } else if (typeIs.is(contentType, ['text']))
       body = await fetchResponse.text();
-    else if (typeIs.is(contentType, ['multipart']))
+    else if (typeIs.is(contentType, ['multipart/form-data']))
       body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();

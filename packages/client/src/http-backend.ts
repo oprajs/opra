@@ -1,4 +1,6 @@
-import { Backend } from '../core/backend.js';
+import type { ApiDocument } from '@opra/common';
+import { Observable } from 'rxjs';
+import type { HttpEvent } from './interfaces/http-event.js';
 import type { HttpHandler } from './interfaces/http-handler.js';
 import type { HttpInterceptor } from './interfaces/http-interceptor.js';
 
@@ -7,7 +9,9 @@ import type { HttpInterceptor } from './interfaces/http-interceptor.js';
  *
  * @class HttpBackend
  */
-export abstract class HttpBackend extends Backend implements HttpHandler {
+export abstract class HttpBackend implements HttpHandler {
+  /** The API document associated with this backend */
+  document?: ApiDocument;
   /** The base URL of the service */
   readonly serviceUrl: string;
   /** List of HTTP interceptors */
@@ -21,11 +25,19 @@ export abstract class HttpBackend extends Backend implements HttpHandler {
    * @protected
    */
   protected constructor(serviceUrl: string, options?: HttpBackend.Options) {
-    super(options);
+    this.document = options?.document;
     const u = new URL(serviceUrl);
     this.serviceUrl = u.toString().split('?')[0].split('#')[0];
     if (!this.serviceUrl.endsWith('/')) this.serviceUrl += '/';
   }
+
+  /**
+   * Handles the request and returns an observable of {@link HttpEvent}.
+   *
+   * @param init The request initialization parameters.
+   * @returns An observable of HttpEvent.
+   */
+  abstract handle(init: HttpBackend.RequestInit): Observable<HttpEvent>;
 }
 
 /**
@@ -35,10 +47,13 @@ export abstract class HttpBackend extends Backend implements HttpHandler {
  */
 export namespace HttpBackend {
   /** Configuration options for HttpBackend */
-  export interface Options extends Backend.Options {}
+  export interface Options {
+    /** The API document associated with this backend */
+    document?: ApiDocument;
+  }
 
   /** Request initialization parameters for HttpBackend */
-  export interface RequestInit extends Backend.RequestInit {
+  export interface RequestInit {
     /** HTTP method (GET, POST, etc.) */
     method: string;
     /** The target URL */

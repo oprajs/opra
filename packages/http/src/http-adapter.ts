@@ -223,7 +223,7 @@ export abstract class HttpAdapter<
         `Content-Type must be ${MimeTypes.multipart_mixed}`,
       );
 
-    const reader = new MultipartReader(request);
+    const reader = new MultipartReader(request, { isFile: () => true });
     let item: MultipartReader.Item | undefined;
     const subResponses: {
       response: ServerResponseHost;
@@ -236,6 +236,10 @@ export abstract class HttpAdapter<
       // Process all sub-requests and buffer their responses
       while ((item = await reader.getNext())) {
         if (item.kind !== 'file') continue;
+        // getNext() pauses the incoming stream as soon as a part starts;
+        // resume it now so this file part's remaining bytes can still be
+        // written to disk while we await its buffer below.
+        reader.resume();
         const buffer = await item.buffer();
         const req = await IncomingMessageHost.from(buffer);
         const res = ServerResponseHost.create(req);
