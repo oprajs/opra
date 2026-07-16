@@ -63,6 +63,10 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
   ) {
     super(options);
     this._addRootController(options.schemaIsPublic);
+    /* Disable default error handler. Errors will be handled by OpraExceptionFilter */
+    this.on('error', (error: Error) => {
+      throw error;
+    });
     if (options.controllers) {
       for (const c of options.controllers) {
         this._addToNestControllers(c, this.basePath, []);
@@ -195,11 +199,6 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       ? nodePath.posix.join(currentPath, metadata.path)
       : currentPath;
     const adapter = this;
-    // adapter.logger =
-    /* Disable default error handler. Errors will be handled by OpraExceptionFilter */
-    adapter.on('error', (error: Error) => {
-      throw error;
-    });
 
     this.nestControllers.push(newClass);
     let metadataKeys: any[];
