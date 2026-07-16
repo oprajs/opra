@@ -6,13 +6,13 @@
   "module": "./index.js",
   "dependencies": {
     "@jsopen/objects": "^2.2.3",
-    "@nestjs/common": "^11.1.27",
-    "@nestjs/core": "^11.1.27",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
     "@opra/common": "^1.29.0",
     "@opra/core": "^1.29.0",
     "@opra/mongodb": "^1.29.0",
     "@opra/nestjs-http": "^1.29.0",
-    "mongodb": "^7.4.0",
+    "mongodb": "^7.5.0",
     "ts-gems": "^3.12.0"
   },
   "scripts": {

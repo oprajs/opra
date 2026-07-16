@@ -33,9 +33,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
-    "@nestjs/platform-express": "^11.1.27",
-    "@nestjs/microservices": "^11.1.27",
-    "@nestjs/testing": "^11.1.27",
+    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/microservices": "^11.1.28",
+    "@nestjs/testing": "^11.1.28",
     "expect": "^30.4.1",
     "express": "^5.2.1",
     "multipart-stream": "^2.0.1",
