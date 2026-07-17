@@ -13,6 +13,7 @@ import {
   HttpStatusCode,
   InternalServerError,
   isBlob,
+  isReadable,
   isReadableStream,
   IssueSeverity,
   MethodNotAllowedError,
@@ -29,6 +30,7 @@ import { splitString } from 'fast-tokenizer';
 import http from 'http';
 import MultipartStream from 'multipart-stream';
 import type { EventMap } from 'node-events-async';
+import type { Readable } from 'node:stream';
 import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
 import {
@@ -46,6 +48,7 @@ import { MultipartReader } from './impl/multipart-reader.js';
 import { ServerResponseHost } from './impl/server-response-host.js';
 import { HttpRequest } from './interfaces/http-request.interface.js';
 import { HttpResponse } from './interfaces/http-response.interface.js';
+import { toReadable } from './utils/to-readeble.js';
 import { wrapException } from './utils/wrap-exception.js';
 
 /**
@@ -648,13 +651,24 @@ export abstract class HttpAdapter<
         response.end();
         return;
       }
-
-      let x: any;
-      if (Buffer.isBuffer(body) || isReadableStream(body)) x = body;
-      else if (isBlob(body)) x = body.stream();
-      else if (typeof body === 'object') x = JSON.stringify(body);
-      else x = String(body);
-      response.end(x);
+      if (Buffer.isBuffer(body) || typeof body === 'string') {
+        response.end(body);
+        return;
+      }
+      let source: Readable | undefined;
+      if (isReadable(body)) source = body;
+      else if (isReadableStream(body)) source = toReadable(body);
+      else if (isBlob(body)) source = toReadable(body);
+      if (source) {
+        await new Promise<void>((resolve, reject) => {
+          source.once('error', reject);
+          response.once('error', reject);
+          response.once('finish', resolve);
+          source.pipe(response);
+        });
+        return;
+      }
+      response.end(JSON.stringify(body));
     } catch (error: any) {
       context.errors.push(error);
       context.errors = this._wrapExceptions(context.errors);
