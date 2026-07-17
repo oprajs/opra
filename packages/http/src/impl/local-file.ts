@@ -4,7 +4,28 @@ import os from 'node:os';
 import path from 'node:path';
 import { uid } from 'uid';
 
+// Exit-based cleanup: `process.finalization` is an experimental Node API that
+// prints a runtime warning, so pending deletions are tracked and flushed
+// synchronously on the 'exit' event instead.
+const pendingDeletes = new Set<string>();
+let exitHandlerRegistered = false;
+
+function ensureExitHandler() {
+  if (exitHandlerRegistered) return;
+  exitHandlerRegistered = true;
+  process.on('exit', () => {
+    for (const storedPath of pendingDeletes) {
+      try {
+        fs.unlinkSync(storedPath);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+}
+
 const registry = new FinalizationRegistry((storedPath: string) => {
+  pendingDeletes.delete(storedPath);
   fs.unlink(storedPath, () => undefined);
 });
 
@@ -63,11 +84,11 @@ export class LocalFile {
     this._autoDelete = value;
     if (value) {
       registry.register(this, this.storedPath, this); // GC-based
-      // exit-based
-      process.finalization?.register(this, obj => obj.delete());
+      ensureExitHandler();
+      pendingDeletes.add(this.storedPath); // exit-based
     } else {
       registry.unregister(this);
-      process.finalization?.unregister(this);
+      pendingDeletes.delete(this.storedPath);
     }
   }
 

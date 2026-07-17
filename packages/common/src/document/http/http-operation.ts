@@ -126,6 +126,10 @@ export interface HttpOperationStatic {
     options?: StrictOmit<HttpOperation.Options, 'method'>,
   ): HttpOperationDecorator;
 
+  QUERY(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
+
   SEARCH(
     options?: StrictOmit<HttpOperation.Options, 'method'>,
   ): HttpOperationDecorator;
@@ -290,6 +294,12 @@ HttpOperation.PUT = function (
   options?: StrictOmit<HttpOperation.Options, 'method'>,
 ): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'PUT' });
+};
+
+HttpOperation.QUERY = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
+  return HttpOperationDecoratorFactory([], { ...options, method: 'QUERY' });
 };
 
 HttpOperation.SEARCH = function (
