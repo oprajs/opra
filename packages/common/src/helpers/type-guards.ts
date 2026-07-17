@@ -1,5 +1,4 @@
 /// <reference lib="dom" />
-import { Blob } from 'node:buffer';
 import { Readable, Stream } from 'stream';
 
 export function isStream(x: any): x is Stream {
