@@ -799,7 +799,7 @@ export abstract class HttpAdapter<
     /* Parse content-type header */
     const parsedContentType =
       hasBody && response.hasHeader('content-type')
-        ? parseContentType(response as any)
+        ? parseContentType(String(response.getHeader('content-type')))
         : undefined;
     let contentType = parsedContentType?.type;
     /* Estimate content type if not defined */
