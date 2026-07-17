@@ -1,4 +1,5 @@
 import * as process from 'node:process';
+import type { Readable } from 'node:stream';
 import typeIs from '@browsery/type-is';
 import {
   ArrayType,
@@ -30,7 +31,6 @@ import { splitString } from 'fast-tokenizer';
 import http from 'http';
 import MultipartStream from 'multipart-stream';
 import type { EventMap } from 'node-events-async';
-import type { Readable } from 'node:stream';
 import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
 import {
