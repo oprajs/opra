@@ -21,10 +21,10 @@ export class UuidType {
   version?: vg.isUUID.UUIDVersion;
 
   protected [DECODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isUUID(properties?.version || 'all', { coerce: true });
   }
 
   protected [ENCODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isUUID(properties?.version || 'all', { coerce: true });
   }
 }

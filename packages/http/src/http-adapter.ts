@@ -651,10 +651,6 @@ export abstract class HttpAdapter<
         response.end();
         return;
       }
-      if (Buffer.isBuffer(body) || typeof body === 'string') {
-        response.end(body);
-        return;
-      }
       let source: Readable | undefined;
       if (isReadable(body)) source = body;
       else if (isReadableStream(body)) source = toReadable(body);
@@ -668,7 +664,9 @@ export abstract class HttpAdapter<
         });
         return;
       }
-      response.end(JSON.stringify(body));
+      if (typeof body === 'object') body = JSON.stringify(body);
+      if (!Buffer.isBuffer(body)) body = Buffer.from(String(body));
+      response.end(body);
     } catch (error: any) {
       context.errors.push(error);
       context.errors = this._wrapExceptions(context.errors);
