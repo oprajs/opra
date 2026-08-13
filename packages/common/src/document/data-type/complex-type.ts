@@ -194,7 +194,7 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
           : (this.additionalFields.toJSON(options) as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
-    if (this._fields.size) {
+    if (this._fields?.size) {
       const fields = {};
       let i = 0;
       for (const field of this._fields.values()) {
