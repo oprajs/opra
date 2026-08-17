@@ -152,7 +152,6 @@ class HttpMediaTypeClass extends DocumentElement {
 
 HttpMediaType.prototype = HttpMediaTypeClass.prototype;
 
-
 /**
  * @namespace HttpMediaType
  */

@@ -32,7 +32,7 @@
     "@opra/core": "^1.29.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.5.0",
+    "@faker-js/faker": "^10.6.0",
     "@opra/http": "^1.29.3",
     "expect": "^30.4.1",
     "sinon": "^22.1.0",
