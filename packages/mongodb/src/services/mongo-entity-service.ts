@@ -231,6 +231,7 @@ export class MongoEntityService<
     isNotNullish(input._id, { label: 'input._id' });
     const inputCodec = this._getInputCodec('create');
     const document: any = inputCodec(input);
+    document._id = input._id;
     const { options } = command;
     const db = this.getDatabase();
     const collection = await this.getCollection(db);

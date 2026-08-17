@@ -11,32 +11,6 @@ import { DataType } from '../data-type/data-type.js';
 import type { HttpMultipartField } from './http-multipart-field.js';
 
 /**
- * @namespace HttpMediaType
- */
-export namespace HttpMediaType {
-  export interface Metadata extends Partial<
-    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-  > {
-    type?: Type | string;
-    multipartFields?: HttpMultipartField.Metadata[];
-    designType?: Type;
-  }
-
-  export interface Options extends Partial<
-    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-  > {
-    type?: Type | string;
-  }
-
-  export interface InitArguments extends Combine<
-    {
-      type?: DataType | string | Type;
-    },
-    StrictOmit<Metadata, 'multipartFields'>
-  > {}
-}
-
-/**
  * Type definition for HttpMediaType
  * @class HttpMediaType
  */
@@ -177,3 +151,29 @@ class HttpMediaTypeClass extends DocumentElement {
 }
 
 HttpMediaType.prototype = HttpMediaTypeClass.prototype;
+
+/**
+ * @namespace HttpMediaType
+ */
+export namespace HttpMediaType {
+  export interface Metadata extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
+    type?: Type | string;
+    multipartFields?: HttpMultipartField.Metadata[];
+    designType?: Type;
+  }
+
+  export interface Options extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
+    type?: Type | string;
+  }
+
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType | string | Type;
+    },
+    StrictOmit<Metadata, 'multipartFields'>
+  > {}
+}

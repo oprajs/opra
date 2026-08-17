@@ -44,6 +44,11 @@ export interface HttpMediaType {
   examples?: Record<string, string>;
 
   /**
+   * Indicates whether the system should automatically handle range downloads
+   */
+  autoRange?: boolean;
+
+  /**
    * Content info for each field for multipart contents
    */
   multipartFields?: HttpMultipartField[];
