@@ -382,6 +382,7 @@ export class SqbEntityService<
       fieldHook: (_, __, defaultGenerator) => {
         return vg.oneOf([defaultGenerator(), vg.isInstanceOf(SqlElement)]);
       },
+      ignoreReadonlyFields: true,
     };
     if (operation === 'update') {
       options.partial = 'deep';
@@ -410,6 +411,7 @@ export class SqbEntityService<
       projection: '*',
       partial: 'deep',
       scope: this._dataTypeScope,
+      ignoreReadonlyFields: true,
     };
     validator = dataType.generateCodec(
       'decode',
