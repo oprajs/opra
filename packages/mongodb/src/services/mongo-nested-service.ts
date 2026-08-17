@@ -422,6 +422,7 @@ export class MongoNestedService<
     isNotNullish(input, { label: 'input' });
     isNotNullish(input[this.nestedKey], { label: `input.${this.nestedKey}` });
     const document: any = inputCodec(input);
+    document[this.nestedKey] = input[this.nestedKey];
 
     const docFilter = MongoAdapter.prepareKeyValues(documentId, ['_id']);
     const db = this.getDatabase();

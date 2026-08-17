@@ -6,7 +6,7 @@
 import type { KeyLike } from 'node:crypto';
 import path from 'node:path';
 import { HttpStatusCode } from '@opra/common';
-import contentDisposition from 'content-disposition';
+import * as contentDisposition from 'content-disposition';
 import contentType from 'content-type';
 import * as cookie from 'cookie';
 import cookieSignature from 'cookie-signature';

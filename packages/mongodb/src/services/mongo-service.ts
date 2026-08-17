@@ -590,6 +590,7 @@ export class MongoService<
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
       scope: this._dataTypeScope,
+      ignoreReadonlyFields: true,
     };
     if (operation === 'update') {
       options.partial = 'deep';
@@ -617,6 +618,7 @@ export class MongoService<
       projection: '*',
       partial: 'deep',
       scope: this._dataTypeScope,
+      ignoreWriteonlyFields: true,
     };
     const dataType = this.dataType;
     validator = dataType.generateCodec(
