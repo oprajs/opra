@@ -411,7 +411,7 @@ export class SqbEntityService<
       projection: '*',
       partial: 'deep',
       scope: this._dataTypeScope,
-      ignoreReadonlyFields: true,
+      ignoreWriteonlyFields: true,
     };
     validator = dataType.generateCodec(
       'decode',
