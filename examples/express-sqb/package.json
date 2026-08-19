@@ -8,8 +8,8 @@
     "@opra/common": "^1.29.5",
     "@opra/core": "^1.29.5",
     "@opra/sqb": "^1.29.5",
-    "@sqb/connect": "^5.0.6",
-    "@sqb/postgres": "^5.0.6",
+    "@sqb/connect": "^5.0.7",
+    "@sqb/postgres": "^5.0.7",
     "express": "^5.2.1",
     "ts-gems": "^3.12.0"
   },

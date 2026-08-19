@@ -217,7 +217,7 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
     name: options?.name,
     description: options?.description,
   };
-  Object.defineProperty(enumSource, DATATYPE_METADATA, {
+  Object.defineProperty(out, DATATYPE_METADATA, {
     value: metadata,
     enumerable: false,
     configurable: true,

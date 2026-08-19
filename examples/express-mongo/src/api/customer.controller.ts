@@ -1,4 +1,4 @@
-import { HttpController, HttpOperation } from '@opra/common';
+import { EnumType, HttpController, HttpOperation } from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
 import { Customer, CustomersService } from 'example-customer-mongo';
@@ -35,5 +35,12 @@ export class CustomerController {
   async update(context: HttpContext) {
     const { key, data, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).update(key, data, options);
+  }
+
+  @(HttpOperation.GET().QueryParam('status', {
+    type: EnumType(['active', 'hidden']),
+  }))
+  async setStatus(context: HttpContext) {
+    console.log(`Status set to "${context.queryParams.status}"`);
   }
 }
