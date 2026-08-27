@@ -1,13 +1,13 @@
 {
   "name": "example-customer-elastic",
   "private": true,
-  "version": "1.29.5",
+  "version": "1.29.7",
   "type": "module",
   "module": "./index.js",
   "dependencies": {
     "@elastic/elasticsearch": "^9.5.0",
-    "@opra/common": "^1.29.5",
-    "@opra/mongodb": "^1.29.5",
+    "@opra/common": "^1.29.7",
+    "@opra/mongodb": "^1.29.7",
     "ts-gems": "^3.12.0"
   },
   "scripts": {
