@@ -32,9 +32,9 @@
     "@opra/core": "^1.29.7",
     "@opra/nestjs": "^1.29.7",
     "@opra/kafka": "^1.29.7",
-    "@nestjs/common": "=>10 && <=12",
-    "@nestjs/core": "=>10 && <=12",
-    "@nestjs/microservices": "=>10 && <=12",
+    "@nestjs/common": ">=10 <=12",
+    "@nestjs/core": ">=10 <=12",
+    "@nestjs/microservices": ">=10 <=12",
     "@platformatic/kafka": ">= 1.34.0 <3"
   },
   "devDependencies": {

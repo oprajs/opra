@@ -29,9 +29,9 @@
     "@opra/core": "^1.29.7",
     "@opra/nestjs": "^1.29.7",
     "@opra/rabbitmq": "^1.29.7",
-    "@nestjs/common": "=>10 && <=12",
-    "@nestjs/core": "=>10 && <=12",
-    "@nestjs/microservices": "=>10 && <=12",
+    "@nestjs/common": ">=10 <=12",
+    "@nestjs/core": ">=10 <=12",
+    "@nestjs/microservices": ">=10 <=12",
     "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {
