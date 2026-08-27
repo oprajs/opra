@@ -11,7 +11,7 @@
     "@opra/http": "^1.29.6",
     "@opra/mongodb": "^1.29.6",
     "express": "^5.2.1",
-    "mongodb": "^7.5.0",
+    "mongodb": "^7.6.0",
     "ts-gems": "^3.12.0"
   },
   "scripts": {
