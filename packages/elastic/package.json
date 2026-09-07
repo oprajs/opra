@@ -34,7 +34,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@opra/http": "^1.29.8",
-    "expect": "^30.4.1",
+    "expect": "^30.5.1",
     "sinon": "^22.1.0",
     "ts-gems": "^3.12.0"
   },

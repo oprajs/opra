@@ -1,9 +1,9 @@
 import { Readable } from 'node:stream';
 import { type HeaderInfo, HTTPParser } from '@browsery/http-parser';
+import MultipartStream from '@browsery/multipart-stream';
 import typeIs from '@browsery/type-is';
 import { omit } from '@jsopen/objects';
 import { MimeTypes, type URLSearchParamsInit } from '@opra/common';
-import MultipartStream from 'multipart-stream';
 import * as MP from 'multipasta/node';
 import { lastValueFrom, Observable } from 'rxjs';
 import { ClientError } from './client-error.js';
