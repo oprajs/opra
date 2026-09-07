@@ -17,6 +17,7 @@ const external = [
   ...Object.keys(pkgJson.peerDependencies || {}),
   ...Object.keys(pkgJson.devDependencies || {}),
 ];
+external.slice(external.indexOf('multipasta'), 1);
 
 await esbuild.build({
   format: 'esm',
@@ -40,7 +41,6 @@ await esbuild.build({
     buffer: 'buffer',
   },
   external,
-  // legalComments: 'external',
   banner: {
     js: `/****************************************
 * All rights reserved Panates® 2022-${new Date().getFullYear()}
