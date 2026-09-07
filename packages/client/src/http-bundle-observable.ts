@@ -4,7 +4,7 @@ import MultipartStream from '@browsery/multipart-stream';
 import typeIs from '@browsery/type-is';
 import { omit } from '@jsopen/objects';
 import { MimeTypes, type URLSearchParamsInit } from '@opra/common';
-import * as MP from 'multipasta/node';
+import * as MP from 'multipasta';
 import { lastValueFrom, Observable } from 'rxjs';
 import { ClientError } from './client-error.js';
 import { kBackend, kContext } from './constants.js';
@@ -284,10 +284,10 @@ export class HttpBundleObservable<
     contentTypeHeader: string,
     onPart: (part: { headers: Record<string, string>; body: Buffer }) => void,
   ): Promise<void> {
-    const stream = MP.make({
+    const stream: any = MP.make({
       headers: { 'content-type': contentTypeHeader },
       isFile: () => true, // treat all parts as file streams (no Content-Disposition)
-    });
+    } as any);
 
     /* Pipe the buffer into the multipasta Duplex and start it flowing */
     Readable.from(buf).pipe(stream);
