@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "1.29.8",
+  "version": "1.29.9",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "uid": "^2.0.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.29.8",
+    "@opra/common": "^1.29.9",
     "rxjs": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
