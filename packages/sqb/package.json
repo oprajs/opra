@@ -38,7 +38,7 @@
     "@sqb/connect": "^6.0.0",
     "@sqb/postgres": "^6.0.7",
     "expect": "^30.5.1",
-    "postgrejs": "^3.0.2",
+    "postgrejs": "^3.0.3",
     "sinon": "^22.1.0",
     "ts-gems": "^3.12.0"
   },
